@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Horizon | Elite Reserve System</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Outfit:wght@200;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0b;
+            --surface: rgba(22, 22, 24, 0.9);
+            --accent-gold: #c5a059;
+            --royal-red: #8b0000;
+            --text-main: #e0e0e0;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- NEW LOADING SCREEN CSS --- */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .loader-logo {
+            font-family: 'Cinzel';
+            color: var(--accent-gold);
+            font-size: 2.5rem;
+            letter-spacing: 8px;
+            margin-bottom: 20px;
+            opacity: 0;
+        }
+        .loader-bar-container {
+            width: 200px;
+            height: 1px;
+            background: rgba(197, 160, 89, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .loader-bar {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--accent-gold);
+            left: -100%;
+        }
+        /* ------------------------------ */
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg-dark); color: var(--text-main); overflow: hidden; height: 100vh; }
+
+        #dynamic-bg {
+            position: fixed; inset: 0; z-index: -1;
+            background-size: cover; background-position: center;
+            filter: brightness(0.2); transition: 1s;
+        }
+
+        .app-container { display: grid; grid-template-columns: 100px 1fr 400px; height: 100vh; }
+
+        /* Left Lift */
+        .lift-shaft { background: #000; display: flex; flex-direction: column-reverse; align-items: center; padding: 20px 0; border-right: 1px solid #333; }
+        .floor-btn { width: 50px; height: 50px; margin: 5px; border-radius: 50%; border: 1px solid var(--accent-gold); background: transparent; color: #fff; cursor: pointer; transition: 0.3s; font-family: 'Cinzel'; }
+        .floor-btn.active { background: var(--accent-gold); color: #000; }
+
+        /* Main View */
+        .viewport { padding: 30px; overflow-y: auto; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .card { background: var(--surface); border: 1px solid #333; border-radius: 10px; overflow: hidden; cursor: pointer; transition: 0.3s; position: relative; }
+        .card img { width: 100%; height: 120px; object-fit: cover; border-bottom: 2px solid var(--accent-gold); }
+        .card.occupied { border-color: var(--royal-red); }
+        .card.selected { border-color: #fff; box-shadow: 0 0 15px var(--accent-gold); }
+
+        /* Right Console */
+        .console { background: var(--surface); padding: 30px; border-left: 1px solid #333; backdrop-filter: blur(20px); }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 0.7rem; color: var(--accent-gold); margin-bottom: 5px; text-transform: uppercase; }
+        .input-group input { width: 100%; padding: 10px; background: var(--glass); border: 1px solid #444; color: #fff; border-radius: 4px; }
+
+        .btn { width: 100%; padding: 15px; border: none; cursor: pointer; font-family: 'Cinzel'; font-weight: bold; margin-top: 10px; border-radius: 4px; transition: 0.3s; }
+        .btn-gold { background: var(--accent-gold); color: #000; }
+        .btn-gold:hover { background: #fff; }
+
+        /* Modal */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        .modal-box { background: #fff; color: #000; padding: 40px; border-radius: 8px; text-align: center; width: 350px; }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="loader-logo">GRAND HORIZON</div>
+        <div class="loader-bar-container">
+            <div class="loader-bar"></div>
+        </div>
+    </div>
+
+    <div id="dynamic-bg"></div>
+
+    <div class="app-container">
+        <aside class="lift-shaft" id="lift"></aside>
+
+        <section class="viewport">
+            <h1 style="font-family: 'Cinzel'; color: var(--accent-gold); margin-bottom: 20px; text-align: center;">Grand Horizon Inventory</h1>
+            <div class="grid" id="room-grid"></div>
+        </section>
+
+        <aside class="console">
+            <h2 style="font-family: 'Cinzel'; color: var(--accent-gold); margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;">Reception Desk</h2>
+            
+            <div class="input-group">
+                <label>Guest Full Name</label>
+                <input type="text" id="g-name" placeholder="John Smith">
+            </div>
+            <div class="input-group">
+                <label>ID / Passport Number</label>
+                <input type="text" id="g-id" placeholder="Ex: ABC123456">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="input-group">
+                    <label>Check-In</label>
+                    <input type="date" id="c-in">
+                </div>
+                <div class="input-group">
+                    <label>Check-Out</label>
+                    <input type="date" id="c-out">
+                </div>
+            </div>
+
+            <div id="status-box" style="margin-top: 20px; padding: 15px; background: var(--glass); display: none; border: 1px solid var(--accent-gold);">
+                <p id="stat-room" style="font-family: 'Cinzel'; color: var(--accent-gold);"></p>
+                <h3 id="stat-price"></h3>
+            </div>
+
+            <button class="btn btn-gold" id="btn-pay" onclick="Ops.openPayment()" style="display: none;">PROCESS PAYMENT</button>
+            
+            <div id="occupied-actions" style="display: none;">
+                <p style="color: var(--royal-red); font-size: 0.8rem; margin-bottom: 10px;">This room is currently occupied.</p>
+                <button class="btn" style="background: #2d5a27; color: #fff;" onclick="Ops.checkout()">STANDARD CHECK-OUT</button>
+                <button class="btn" style="background: var(--royal-red); color: #fff;" onclick="Ops.cancel()">CANCEL (70% REFUND)</button>
+            </div>
+        </aside>
+    </div>
+
+    <div class="modal" id="pay-modal">
+        <div class="modal-box">
+            <h2 style="font-family: 'Cinzel';">Secure Payment</h2>
+            <img id="qr" src="" style="width: 200px; margin: 20px 0;">
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 20px;">Scan to pay via UPI</p>
+            <button class="btn btn-gold" onclick="Ops.completeBooking()">I HAVE PAID - GENERATE INVOICE</button>
+            <button class="btn" onclick="document.getElementById('pay-modal').style.display='none'">CANCEL</button>
+        </div>
+    </div>
+
+    <script>
+        // --- NEW LOADING ANIMATION LOGIC ---
+        window.addEventListener('load', () => {
+            const tl = gsap.timeline();
+            
+            tl.to(".loader-logo", { opacity: 1, duration: 1, letterSpacing: "12px", ease: "power2.out" })
+              .to(".loader-bar", { left: "0%", duration: 1.5, ease: "power4.inOut" }, "-=0.5")
+              .to("#loader", { yPercent: -100, duration: 0.8, ease: "expo.inOut" })
+              .from(".app-container", { opacity: 0, scale: 1.1, duration: 1 }, "-=0.4");
+        });
+        // ------------------------------------
+
+        const Ops = (() => {
+            const state = {
+                db: JSON.parse(localStorage.getItem('gh_master_db')) || [],
+                selected: null,
+                floor: 1
+            };
+
+            const IMGS = [
+                "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800", // Deluxe
+                "https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=800", // Executive
+                "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"  // Royal
+            ];
+
+            const init = () => {
+                const lift = document.getElementById('lift');
+                for(let i=1; i<=10; i++) {
+                    const b = document.createElement('button');
+                    b.className = 'floor-btn';
+                    b.innerText = i;
+                    b.onclick = () => loadFloor(i);
+                    lift.appendChild(b);
+                }
+                loadFloor(1);
+            };
+
+            const loadFloor = (f) => {
+                state.floor = f;
+                document.querySelectorAll('.floor-btn').forEach(b => b.classList.toggle('active', b.innerText == f));
+                
+                const tier = f < 5 ? 0 : (f < 9 ? 1 : 2);
+                document.getElementById('dynamic-bg').style.backgroundImage = `url('${IMGS[tier]}')`;
+                
+                const grid = document.getElementById('room-grid');
+                grid.innerHTML = '';
+                const price = [5000, 12000, 35000][tier];
+
+                for(let i=1; i<=6; i++) {
+                    const id = `${f}${i.toString().padStart(2,'0')}`;
+                    const booking = state.db.find(b => b.Suite == id && b.isCheckedOut == "False");
+                    
+                    const div = document.createElement('div');
+                    div.className = `card ${booking ? 'occupied' : ''}`;
+                    div.innerHTML = `
+                        <img src="${IMGS[tier]}">
+                        <div style="padding:10px;">
+                            <b style="font-family: 'Cinzel';">${id}</b>
+                            <p style="color: var(--accent-gold);">₹${price}</p>
+                            <small>${booking ? 'Occupied: '+booking.Guest : 'Available'}</small>
+                        </div>
+                    `;
+                    div.onclick = (event) => selectRoom(id, price, booking, event);
+                    grid.appendChild(div);
+                }
+            };
+
+            const selectRoom = (id, price, booking, event) => {
+                state.selected = { id, price, booking };
+                document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+                event.currentTarget.classList.add('selected');
+
+                document.getElementById('status-box').style.display = 'block';
+                document.getElementById('stat-room').innerText = `SUITE ${id}`;
+                document.getElementById('stat-price').innerText = `₹${price}`;
+
+                if(booking) {
+                    document.getElementById('btn-pay').style.display = 'none';
+                    document.getElementById('occupied-actions').style.display = 'block';
+                } else {
+                    document.getElementById('btn-pay').style.display = 'block';
+                    document.getElementById('occupied-actions').style.display = 'none';
+                }
+            };
+
+            const openPayment = () => {
+                const name = document.getElementById('g-name').value;
+                if(!name) return alert("Please enter Guest Name");
+                
+                const upi = `upi://pay?pa=hotelhorizon@bank&am=${state.selected.price}&nm=GrandHorizon`;
+                document.getElementById('qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upi)}`;
+                document.getElementById('pay-modal').style.display = 'flex';
+            };
+
+            const completeBooking = () => {
+                const data = {
+                    Booking_Date: new Date().toLocaleDateString(),
+                    Guest: document.getElementById('g-name').value,
+                    ID: document.getElementById('g-id').value,
+                    Suite: state.selected.id,
+                    CheckIn: document.getElementById('c-in').value,
+                    CheckOut: document.getElementById('c-out').value,
+                    Amount: state.selected.price,
+                    Status: "Confirmed",
+                    isCheckedOut: "False"
+                };
+
+                state.db.push(data);
+                save();
+                generatePDF(data);
+                document.getElementById('pay-modal').style.display = 'none';
+                loadFloor(state.floor);
+                alert("Payment Verified. Invoice Generated.");
+            };
+
+            const checkout = () => {
+                state.selected.booking.isCheckedOut = "True";
+                state.selected.booking.Status = "Checked-Out";
+                save();
+                loadFloor(state.floor);
+                alert("Guest Checked-Out Successfully.");
+            };
+
+            const cancel = () => {
+                const refund = state.selected.price * 0.7;
+                if(confirm(`Process 70% Refund of ₹${refund}?`)) {
+                    state.selected.booking.isCheckedOut = "True";
+                    state.selected.booking.Status = "Cancelled";
+                    save();
+                    loadFloor(state.floor);
+                    alert("Booking Cancelled. Refund Request Sent.");
+                }
+            };
+
+            const save = () => {
+                localStorage.setItem('gh_master_db', JSON.stringify(state.db));
+                const ws = XLSX.utils.json_to_sheet(state.db);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "MasterRecords");
+                XLSX.writeFile(wb, "hotel grand horizon.xlsx");
+            };
+
+            const generatePDF = (d) => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.setFillColor(20, 20, 20);
+                doc.rect(0, 0, 210, 40, 'F');
+                doc.setTextColor(197, 160, 89);
+                doc.setFontSize(22);
+                doc.text("GRAND HORIZON - RECEIPT", 105, 25, { align: 'center' });
+                
+                doc.autoTable({
+                    startY: 50,
+                    head: [['Field', 'Information']],
+                    body: Object.entries(d),
+                    theme: 'striped',
+                    headStyles: { fillColor: [197, 160, 89] }
+                });
+                doc.save(`Invoice_${d.Suite}.pdf`);
+            };
+
+            return { init, openPayment, completeBooking, checkout, cancel };
+        })();
+
+        Ops.init();
+    </script>
+</body>
+</html>
