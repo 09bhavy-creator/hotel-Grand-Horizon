@@ -1,0 +1,2173 @@
+<html lang="en"><head>
+  <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+  <script type="module" src="/@vite/client"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRAND HORIZON | Sovereign Enterprise Suite v12.0</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@100;300;400;600;900&display=swap');
+
+        :root {
+            --gold: #D4AF37;
+            --black: #050505;
+            --white: #ffffff;
+            --lux-ease: cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { font-family: 'Inter', sans-serif; background: var(--black); color: white; overflow-x: hidden; }
+
+        .font-luxury { font-family: 'Playfair Display', serif; }
+
+        /* CURSOR ENGINE - Desktop Only */
+
+        @media (min-width: 768px) {
+            * { cursor: none; }
+            #cursor-main { width: 10px; height: 10px; background: var(--gold); border-radius: 50%; position: fixed; pointer-events: none; z-index: 10000; display: block; }
+            #cursor-aura { width: 40px; height: 40px; border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; display: block; }
+        }
+
+        @media (max-width: 767px) {
+            #cursor-main, #cursor-aura { display: none !important; }
+        }
+
+        /* GALLERY VIEWPORT */
+
+        #gallery-viewport {
+            height: 90vh; width: 100%; position: relative; overflow: hidden;
+            background: #000; border-radius: 0 0 80px 80px;
+        }
+
+        .slide { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; z-index: 0; display: none; }
+
+        .slide.active { opacity: 1; z-index: 10; display: block; }
+
+        .slide img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); }
+
+        .slide-caption { position: absolute; bottom: 100px; left: 100px; z-index: 20; opacity: 0; transform: translateY(30px); }
+
+        /* INPUT STYLES */
+
+        .lux-input {
+            background: transparent; border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding: 20px 0; width: 100%; font-size: 1.5rem; outline: none;
+            transition: 0.5s; font-family: 'Playfair Display', serif; color: white;
+        }
+
+        .lux-input:focus { border-color: var(--gold); }
+
+        input[type="date"] { color-scheme: dark; }
+
+        select.lux-input option { background: #080808; color: white; }
+
+        /* BUTTON VISIBILITY FIX */
+
+        button[type="button"], button[onclick*="logic.process"] {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            cursor: pointer !important;
+            background: white !important;
+            color: black !important;
+            border: 3px solid var(--gold) !important;
+            box-shadow: 0 10px 40px rgba(255, 255, 255, 0.3) !important;
+        }
+
+        button[type="button"]:hover, button[onclick*="logic.process"]:hover {
+            background: var(--gold) !important;
+            color: black !important;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 50px rgba(212, 175, 55, 0.5) !important;
+        }
+
+        /* PRELOADER */
+
+        #preloader {
+            position: fixed; inset: 0; background: var(--black); z-index: 100000;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* SPATIAL MAPPING */
+
+        .room-node {
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            font-size: 9px; font-weight: bold; border-radius: 10px; transition: 0.5s;
+        }
+
+        .room-occupied { background: var(--gold); color: black; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
+
+        .room-vacant { border: 1px solid #e0e0e0; color: #ccc; }
+
+        /* UTILITIES */
+
+        .reveal { opacity: 0; transform: translateY(60px); transition: 1.2s var(--lux-ease); }
+
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* 3D EFFECTS */
+
+        .card-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.5s var(--lux-ease);
+            perspective: 1000px;
+        }
+
+        .card-3d:hover {
+            transform: rotateY(5deg) rotateX(5deg) scale(1.02);
+        }
+
+        /* 3D FLOATING ANIMATION */
+
+        @keyframes float3d {
+            0%, 100% { transform: translateY(0px) rotateX(0deg) rotateZ(0deg); }
+            25% { transform: translateY(-20px) rotateX(5deg) rotateZ(2deg); }
+            50% { transform: translateY(0px) rotateX(0deg) rotateZ(-2deg); }
+            75% { transform: translateY(-10px) rotateX(-5deg) rotateZ(1deg); }
+        }
+
+        .float-3d {
+            animation: float3d 6s ease-in-out infinite;
+        }
+
+        /* PARALLAX LAYERS */
+
+        .parallax-layer {
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        /* 3D BUTTON */
+
+        .btn-3d {
+            transform-style: preserve-3d;
+            transition: all 0.3s var(--lux-ease);
+            position: relative;
+        }
+
+        .btn-3d::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1));
+            transform: translateZ(-10px);
+            border-radius: inherit;
+        }
+
+        .btn-3d:hover {
+            transform: translateZ(20px) scale(1.05);
+        }
+
+        /* MOBILE HAMBURGER MENU */
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 10000;
+        }
+
+        .hamburger span {
+            width: 30px;
+            height: 3px;
+            background: var(--gold);
+            transition: 0.3s;
+            border-radius: 3px;
+        }
+
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(8px, 8px); }
+
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(8px, -8px); }
+
+        /* MOBILE MENU */
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background: linear-gradient(135deg, #050505 0%, #1a1a1a 100%);
+            border-left: 2px solid var(--gold);
+            padding: 80px 30px;
+            transition: right 0.4s var(--lux-ease);
+            z-index: 9999;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+
+        .mobile-menu.active { right: 0; }
+
+        .mobile-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+            z-index: 9998;
+        }
+
+        .mobile-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* MOBILE RESPONSIVE */
+
+        @media (max-width: 767px) {
+            .hamburger { display: flex; }
+            nav .hidden { display: none !important; }
+            .slide-caption {
+                bottom: 30px !important;
+                left: 20px !important;
+                right: 20px !important;
+            }
+            .slide-caption h4 { font-size: 2rem !important; }
+            .lux-input { font-size: 1rem; padding: 15px 0; }
+            #gallery-viewport { border-radius: 0 0 40px 40px; height: 60vh; }
+            .card-3d:hover { transform: none; }
+        }
+
+        /* 3D CARD TILT EFFECT */
+
+        .tilt-card {
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease-out;
+        }
+
+        .tilt-card-inner {
+            transform: translateZ(50px);
+        }
+
+        /* GLASSMORPHISM 3D */
+
+        .glass-3d {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transform-style: preserve-3d;
+        }
+
+        /* 3D TEXT SHADOW */
+
+        .text-3d {
+            text-shadow:
+                0 1px 0 #ccc,
+                0 2px 0 #c9c9c9,
+                0 3px 0 #bbb,
+                0 4px 0 #b9b9b9,
+                0 5px 0 #aaa,
+                0 6px 1px rgba(0,0,0,.1),
+                0 0 5px rgba(0,0,0,.1),
+                0 1px 3px rgba(0,0,0,.3),
+                0 3px 5px rgba(0,0,0,.2),
+                0 5px 10px rgba(0,0,0,.25),
+                0 10px 10px rgba(0,0,0,.2),
+                0 20px 20px rgba(0,0,0,.15);
+        }
+
+        /* PERSPECTIVE CONTAINER */
+
+        .perspective-container {
+            perspective: 1500px;
+            perspective-origin: center;
+        }
+
+        /* ADMIN TAB STYLES */
+
+        .admin-tab {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .admin-tab.active {
+            background: #D4AF37;
+            color: #000;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .admin-content {
+            display: block;
+        }
+
+        .admin-content.hidden {
+            display: none;
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0px}.bottom-40{bottom:10rem}.left-10{left:2.5rem}.right-10{right:2.5rem}.right-20{right:5rem}.top-1\/3{top:33.333333%}.top-20{top:5rem}.z-10{z-index:10}.z-\[5000\]{z-index:5000}.z-\[6000\]{z-index:6000}.z-\[7000\]{z-index:7000}.mx-auto{margin-left:auto;margin-right:auto}.mb-12{margin-bottom:3rem}.mb-16{margin-bottom:4rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.mt-12{margin-top:3rem}.mt-16{margin-top:4rem}.mt-2{margin-top:0.5rem}.mt-3{margin-top:0.75rem}.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}.mt-8{margin-top:2rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-16{height:4rem}.h-20{height:5rem}.h-32{height:8rem}.h-64{height:16rem}.h-full{height:100%}.h-screen{height:100vh}.max-h-\[90vh\]{max-height:90vh}.w-16{width:4rem}.w-20{width:5rem}.w-32{width:8rem}.w-full{width:100%}.max-w-2xl{max-width:42rem}.max-w-3xl{max-width:48rem}.max-w-4xl{max-width:56rem}.max-w-7xl{max-width:80rem}.flex-1{flex:1 1 0%}.border-collapse{border-collapse:collapse}.scale-110{--tw-scale-x:1.1;--tw-scale-y:1.1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.cursor-pointer{cursor:pointer}.resize-none{resize:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.grid-rows-2{grid-template-rows:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-10{gap:2.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-x-16 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(4rem * var(--tw-space-x-reverse));margin-left:calc(4rem * calc(1 - var(--tw-space-x-reverse)))}.space-x-4 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(1rem * var(--tw-space-x-reverse));margin-left:calc(1rem * calc(1 - var(--tw-space-x-reverse)))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.space-y-8 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem * var(--tw-space-y-reverse))}.self-end{align-self:flex-end}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-\[40px\]{border-radius:40px}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-black{--tw-border-opacity:1;border-color:rgb(0 0 0 / var(--tw-border-opacity, 1))}.border-gray-100{--tw-border-opacity:1;border-color:rgb(243 244 246 / var(--tw-border-opacity, 1))}.border-gray-200{--tw-border-opacity:1;border-color:rgb(229 231 235 / var(--tw-border-opacity, 1))}.bg-\[\#080808\]{--tw-bg-opacity:1;background-color:rgb(8 8 8 / var(--tw-bg-opacity, 1))}.bg-black{--tw-bg-opacity:1;background-color:rgb(0 0 0 / var(--tw-bg-opacity, 1))}.bg-black\/50{background-color:rgb(0 0 0 / 0.5)}.bg-gray-100{--tw-bg-opacity:1;background-color:rgb(243 244 246 / var(--tw-bg-opacity, 1))}.bg-gray-200{--tw-bg-opacity:1;background-color:rgb(229 231 235 / var(--tw-bg-opacity, 1))}.bg-gray-50{--tw-bg-opacity:1;background-color:rgb(249 250 251 / var(--tw-bg-opacity, 1))}.bg-gray-900{--tw-bg-opacity:1;background-color:rgb(17 24 39 / var(--tw-bg-opacity, 1))}.bg-transparent{background-color:transparent}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-gradient-to-b{background-image:linear-gradient(to bottom, var(--tw-gradient-stops))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.from-black\/80{--tw-gradient-from:rgb(0 0 0 / 0.8) var(--tw-gradient-from-position);--tw-gradient-to:rgb(0 0 0 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-black\/90{--tw-gradient-from:rgb(0 0 0 / 0.9) var(--tw-gradient-from-position);--tw-gradient-to:rgb(0 0 0 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-gray-900{--tw-gradient-from:#111827 var(--tw-gradient-from-position);--tw-gradient-to:rgb(17 24 39 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-black\/60{--tw-gradient-to:rgb(0 0 0 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), rgb(0 0 0 / 0.6) var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-black{--tw-gradient-to:#000 var(--tw-gradient-to-position)}.to-black\/90{--tw-gradient-to:rgb(0 0 0 / 0.9) var(--tw-gradient-to-position)}.to-transparent{--tw-gradient-to:transparent var(--tw-gradient-to-position)}.object-cover{object-fit:cover}.p-10{padding:2.5rem}.p-12{padding:3rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-8{padding-left:2rem;padding-right:2rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-20{padding-top:5rem;padding-bottom:5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.pb-4{padding-bottom:1rem}.pt-4{padding-top:1rem}.pt-6{padding-top:1.5rem}.pt-8{padding-top:2rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-5xl{font-size:3rem;line-height:1}.text-6xl{font-size:3.75rem;line-height:1}.text-\[10px\]{font-size:10px}.text-\[7px\]{font-size:7px}.text-\[8px\]{font-size:8px}.text-\[9px\]{font-size:9px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.uppercase{text-transform:uppercase}.italic{font-style:italic}.tracking-\[10px\]{letter-spacing:10px}.tracking-\[15px\]{letter-spacing:15px}.tracking-\[3px\]{letter-spacing:3px}.tracking-\[4px\]{letter-spacing:4px}.tracking-\[5px\]{letter-spacing:5px}.tracking-\[8px\]{letter-spacing:8px}.tracking-widest{letter-spacing:0.1em}.text-black{--tw-text-opacity:1;color:rgb(0 0 0 / var(--tw-text-opacity, 1))}.text-black\/50{color:rgb(0 0 0 / 0.5)}.text-black\/60{color:rgb(0 0 0 / 0.6)}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.opacity-50{opacity:0.5}.opacity-60{opacity:0.6}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.outline-none{outline:2px solid transparent;outline-offset:2px}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:bg-black:hover{--tw-bg-opacity:1;background-color:rgb(0 0 0 / var(--tw-bg-opacity, 1))}.hover\:bg-gray-300:hover{--tw-bg-opacity:1;background-color:rgb(209 213 219 / var(--tw-bg-opacity, 1))}.hover\:text-black:hover{--tw-text-opacity:1;color:rgb(0 0 0 / var(--tw-text-opacity, 1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}@media (min-width: 768px){.md\:mb-12{margin-bottom:3rem}.md\:mb-20{margin-bottom:5rem}.md\:mt-10{margin-top:2.5rem}.md\:block{display:block}.md\:flex{display:flex}.md\:hidden{display:none}.md\:h-20{height:5rem}.md\:h-80{height:20rem}.md\:w-20{width:5rem}.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:items-end{align-items:flex-end}.md\:gap-0{gap:0px}.md\:gap-8{gap:2rem}.md\:space-x-6 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(1.5rem * var(--tw-space-x-reverse));margin-left:calc(1.5rem * calc(1 - var(--tw-space-x-reverse)))}.md\:space-y-12 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(3rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(3rem * var(--tw-space-y-reverse))}.md\:p-12{padding:3rem}.md\:px-10{padding-left:2.5rem;padding-right:2.5rem}.md\:px-16{padding-left:4rem;padding-right:4rem}.md\:px-8{padding-left:2rem;padding-right:2rem}.md\:py-10{padding-top:2.5rem;padding-bottom:2.5rem}.md\:py-40{padding-top:10rem;padding-bottom:10rem}.md\:py-6{padding-top:1.5rem;padding-bottom:1.5rem}.md\:py-8{padding-top:2rem;padding-bottom:2rem}.md\:text-3xl{font-size:1.875rem;line-height:2.25rem}.md\:text-4xl{font-size:2.25rem;line-height:2.5rem}.md\:text-6xl{font-size:3.75rem;line-height:1}.md\:text-7xl{font-size:4.5rem;line-height:1}.md\:text-8xl{font-size:6rem;line-height:1}.md\:text-\[10px\]{font-size:10px}.md\:tracking-\[20px\]{letter-spacing:20px}}@media (min-width: 1024px){.lg\:col-span-2{grid-column:span 2 / span 2}.lg\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.lg\:text-\[12rem\]{font-size:12rem}}</style></head>
+<body style="">
+
+    
+    <div id="cursor-main" style="translate: none; rotate: none; scale: none; transform: translate(980px, 26px);"></div>
+
+    <div id="cursor-aura" style="translate: none; rotate: none; scale: none; transform: translate(965px, 11px);"></div><div id="preloader" style="opacity: 0; display: none;">
+        <div class="text-center">
+            <h1 class="font-luxury text-gold text-5xl tracking-[15px] animate-pulse">GRAND HORIZON</h1>
+            <p class="text-[9px] tracking-[8px] mt-4 opacity-50 uppercase">Enterprise Logic v12.0</p>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-overlay" class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu">
+        <div class="flex flex-col space-y-8">
+            <a href="#gallery" onclick="toggleMobileMenu()" class="text-xl tracking-[4px] uppercase hover:text-gold transition border-b border-gold/20 pb-4">Atmosphere</a>
+            <a href="#booking" onclick="toggleMobileMenu()" class="text-xl tracking-[4px] uppercase hover:text-gold transition border-b border-gold/20 pb-4">Reservations</a>
+            <button onclick="admin.open(); toggleMobileMenu();" class="text-xl tracking-[4px] uppercase text-gold font-black border-b border-gold/20 pb-4 text-left">Staff Terminal</button>
+            <div class="mt-8 pt-8 border-t border-gold/20">
+                <p class="text-xs text-gold uppercase font-bold mb-2">Suite Vacancy</p>
+                <p class="text-3xl font-luxury"><span id="room-count-mobile" class="font-bold text-gold">20</span> / 20</p>
+            </div>
+        </div>
+    </div>
+
+    <nav class="fixed w-full z-[5000] px-6 md:px-16 py-6 md:py-10 flex justify-between items-center bg-gradient-to-b from-black/90 to-transparent backdrop-blur-sm">
+        <div class="flex flex-col float-3d">
+            <span class="text-2xl md:text-3xl font-luxury font-black text-gold tracking-widest">GH</span>
+            <span class="text-[7px] tracking-[5px] uppercase opacity-60">Sovereign Estate</span>
+        </div>
+        <div class="hidden md:flex space-x-16">
+            <a href="#gallery" class="text-[10px] tracking-[4px] uppercase hover:text-gold transition">Atmosphere</a>
+            <a href="#booking" class="text-[10px] tracking-[4px] uppercase hover:text-gold transition">Reservations</a>
+            <button onclick="admin.open()" class="text-[10px] tracking-[4px] uppercase text-gold font-black" fdprocessedid="tyn4bh">Staff Terminal</button>
+        </div>
+        <div class="hidden md:block text-right">
+            <p class="text-[9px] text-gold uppercase font-bold">Suite Vacancy</p>
+            <p class="text-lg"><span id="room-count" class="font-bold">20</span> / 20</p>
+        </div>
+        <!-- Hamburger Menu -->
+        <div class="hamburger md:hidden" id="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <main>
+        <section class="h-screen relative flex items-center justify-center overflow-hidden perspective-container">
+            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb" class="absolute inset-0 w-full h-full object-cover opacity-50 scale-110 parallax-layer" id="hero-img" data-speed="0.5">
+
+            <!-- 3D Floating Elements -->
+            <div class="absolute top-20 left-10 w-20 h-20 border border-gold/20 rounded-full float-3d" style="animation-delay: 0s;"></div>
+            <div class="absolute bottom-40 right-20 w-32 h-32 border border-gold/10 rounded-full float-3d" style="animation-delay: 2s;"></div>
+            <div class="absolute top-1/3 right-10 w-16 h-16 border border-gold/15 float-3d" style="animation-delay: 4s;"></div>
+
+            <div class="text-center z-10 px-6 md:px-10">
+                <h1 class="text-5xl md:text-8xl lg:text-[12rem] font-luxury italic reveal text-3d active">Sovereign.</h1>
+                <p class="tracking-[10px] md:tracking-[20px] uppercase text-[8px] md:text-[10px] text-gold mt-6 md:mt-10 reveal active">The World's Most Exclusive Residency</p>
+
+                <!-- 3D Card with Stats -->
+                <div class="mt-16 flex justify-center gap-4 md:gap-8 flex-wrap reveal active">
+                    <div class="glass-3d card-3d px-6 md:px-8 py-4 md:py-6 rounded-2xl">
+                        <p class="text-2xl md:text-4xl font-luxury text-gold">20</p>
+                        <p class="text-[8px] md:text-[10px] uppercase tracking-widest mt-2">Luxury Suites</p>
+                    </div>
+                    <div class="glass-3d card-3d px-6 md:px-8 py-4 md:py-6 rounded-2xl">
+                        <p class="text-2xl md:text-4xl font-luxury text-gold">5★</p>
+                        <p class="text-[8px] md:text-[10px] uppercase tracking-widest mt-2">Premium Rating</p>
+                    </div>
+                    <div class="glass-3d card-3d px-6 md:px-8 py-4 md:py-6 rounded-2xl">
+                        <p class="text-2xl md:text-4xl font-luxury text-gold">24/7</p>
+                        <p class="text-[8px] md:text-[10px] uppercase tracking-widest mt-2">Concierge</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="gallery" class="py-20 md:py-40 bg-white text-black">
+            <div class="max-w-7xl mx-auto px-6 md:px-10 mb-12 md:mb-20 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-0">
+                <div class="reveal">
+                    <span class="text-[10px] tracking-[8px] uppercase text-gray-400">Spatial Aesthetics</span>
+                    <h2 class="text-4xl md:text-7xl font-luxury mt-4">Estate Scenes.</h2>
+                </div>
+                <div class="flex space-x-4 md:space-x-6">
+                    <button onclick="slider.move(-1)" class="w-16 h-16 md:w-20 md:h-20 border border-black flex items-center justify-center hover:bg-black hover:text-white transition rounded-xl card-3d" fdprocessedid="pt8sd">←</button>
+                    <button onclick="slider.move(1)" class="w-16 h-16 md:w-20 md:h-20 border border-black flex items-center justify-center hover:bg-black hover:text-white transition rounded-xl card-3d" fdprocessedid="zd8wq">→</button>
+                </div>
+            </div>
+
+            <div id="gallery-viewport">
+                <div class="slide active" data-enter="from-top">
+                    <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d">
+                    <div class="slide-caption"><h4 class="text-5xl font-luxury text-white">The Infinity Pool</h4></div>
+                </div>
+                <div class="slide" data-enter="from-bottom">
+                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b">
+                    <div class="slide-caption"><h4 class="text-5xl font-luxury text-white">Royal Master Wing</h4></div>
+                </div>
+                <div class="slide" data-enter="from-left">
+                    <img src="https://images.unsplash.com/photo-1560662105-57f8ad6ae2d1">
+                    <div class="slide-caption"><h4 class="text-5xl font-luxury text-white">Imperial Dining</h4></div>
+                </div>
+                <div class="slide" data-enter="from-right">
+                    <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6">
+                    <div class="slide-caption"><h4 class="text-5xl font-luxury text-white">Lakeside Sanctuary</h4></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="booking" class="py-20 md:py-40 bg-[#080808] text-white px-6 md:px-10">
+            <div class="max-w-4xl mx-auto">
+                <div class="reveal">
+                    <h2 class="text-4xl md:text-6xl font-luxury mb-8 md:mb-12 text-gold text-center">Registry.</h2>
+                    <form id="book-form" class="space-y-8 md:space-y-12 max-w-2xl mx-auto">
+                        <div>
+                            <label class="text-[10px] uppercase tracking-widest text-gray-500">Legal Identity</label>
+                            <input type="text" id="gName" class="lux-input" placeholder="Full Name" required="" fdprocessedid="xargt">
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] uppercase tracking-widest text-gray-500">Email Address</label>
+                            <input type="email" id="gEmail" class="lux-input" placeholder="your@email.com" required="" fdprocessedid="o3pibm">
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] uppercase tracking-widest text-gray-500">Mobile Contact</label>
+                            <input type="tel" id="gPhone" class="lux-input" placeholder="+91 9999999999" required="" fdprocessedid="b5z2o">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-10">
+                            <div>
+                                <label class="text-[10px] uppercase tracking-widest text-gray-500">Check-In</label>
+                                <input type="date" id="cin" class="lux-input" required="">
+                            </div>
+                            <div>
+                                <label class="text-[10px] uppercase tracking-widest text-gray-500">Check-Out</label>
+                                <input type="date" id="cout" class="lux-input" required="">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] uppercase tracking-widest text-gray-500">Residence Tier</label>
+                            <select id="gTier" class="lux-input bg-transparent" required="" fdprocessedid="bn09d">
+                                <option value="8000">Sovereign Suite — ₹8,000 / night</option>
+                                <option value="18000">Imperial Penthouse — ₹18,000 / night</option>
+                            </select>
+                        </div>
+
+                        <button type="button" onclick="logic.process()" class="w-full bg-white text-black py-6 md:py-8 font-black uppercase tracking-[5px] text-xs hover:bg-gold transition shadow-2xl btn-3d rounded-lg" style="display: block !important; visibility: visible !important; cursor: pointer !important;" fdprocessedid="5zfqp">Verify &amp; Reserve</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="admin-panel" class="hidden fixed inset-0 z-[6000] bg-white text-black overflow-y-auto">
+        <!-- Header with Gallery Background -->
+        <div class="relative h-64 md:h-80 overflow-hidden">
+            <div class="absolute inset-0 grid grid-cols-3 grid-rows-2 gap-1">
+                <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d" class="w-full h-full object-cover opacity-60">
+                <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b" class="w-full h-full object-cover opacity-60">
+                <img src="https://images.unsplash.com/photo-1560662105-57f8ad6ae2d1" class="w-full h-full object-cover opacity-60">
+                <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6" class="w-full h-full object-cover opacity-60">
+                <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb" class="w-full h-full object-cover opacity-60">
+                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945" class="w-full h-full object-cover opacity-60">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90"></div>
+            <div class="relative h-full flex flex-col justify-between p-6 md:p-12">
+                <button onclick="admin.close()" class="self-end glass-3d px-6 py-3 rounded-full text-white uppercase text-[10px] tracking-widest font-bold hover:bg-gold hover:text-black transition">✕ Disconnect</button>
+                <div>
+                    <h2 class="text-5xl md:text-7xl font-luxury text-white mb-4">Intelligence Hub</h2>
+                    <p class="text-xs tracking-[5px] text-gold uppercase">Core Sales Analytics &amp; Spatial Logic</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-6 md:p-12">
+
+        <!-- Quick Action Tabs -->
+        <div class="flex gap-4 mb-12 flex-wrap">
+            <button onclick="admin.showTab('dashboard')" id="tab-dashboard" class="admin-tab active px-8 py-4 rounded-2xl font-bold uppercase text-xs tracking-widest transition">
+                📊 Dashboard
+            </button>
+            <button onclick="admin.showTab('ledger')" id="tab-ledger" class="admin-tab px-8 py-4 rounded-2xl font-bold uppercase text-xs tracking-widest transition">
+                📋 Active Ledger
+            </button>
+            <button onclick="admin.showTab('gallery')" id="tab-gallery" class="admin-tab px-8 py-4 rounded-2xl font-bold uppercase text-xs tracking-widest transition">
+                🖼️ Gallery
+            </button>
+            <button onclick="admin.showTab('registry')" id="tab-registry" class="admin-tab px-8 py-4 rounded-2xl font-bold uppercase text-xs tracking-widest transition">
+                📝 New Registry
+            </button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="admin-dashboard" class="admin-content">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-16">
+            <div class="lg:col-span-2 bg-gray-50 p-10 rounded-[40px] border border-gray-100">
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-8 text-gray-400">Sales Performance</h3>
+                <canvas id="revenueChart" style="max-height: 250px;"></canvas>
+            </div>
+
+            <div class="bg-gray-50 p-10 rounded-[40px] border border-gray-100">
+                <h3 class="text-xs font-bold uppercase tracking-widest mb-8 text-gray-400">Spatial Occupancy</h3>
+                <div class="space-y-8 mt-4">
+                    <div>
+                        <p class="text-[8px] uppercase tracking-[3px] mb-4 text-gray-400">Floor 01 (Executive)</p>
+                        <div id="map-f1" class="flex flex-wrap gap-3"></div>
+                    </div>
+                    <div>
+                        <p class="text-[8px] uppercase tracking-[3px] mb-4 text-gray-400">Floor 02 (Imperial)</p>
+                        <div id="map-f2" class="flex flex-wrap gap-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
+            <div class="bg-black text-white p-12 rounded-[40px]">
+                <div class="flex justify-between items-start mb-6">
+                    <p class="text-[10px] uppercase text-gray-500 tracking-widest">Sales Revenue</p>
+                    <select id="sales-period" onchange="admin.updateSalesPeriod()" class="bg-gray-900 text-white text-xs px-4 py-2 rounded-full border border-gold/30 outline-none cursor-pointer">
+                        <option value="daily">Today</option>
+                        <option value="weekly">This Week</option>
+                        <option value="monthly">This Month</option>
+                        <option value="yearly">This Year</option>
+                        <option value="lifetime" selected="">Lifetime</option>
+                    </select>
+                </div>
+                <h4 id="adm-rev" class="text-6xl font-luxury text-gold">₹0</h4>
+                <p id="adm-rev-count" class="text-xs text-gray-400 mt-3"></p>
+            </div>
+            <div class="bg-gold p-12 rounded-[40px]">
+                <p class="text-[10px] uppercase text-black/50 tracking-widest">Active Bookings</p>
+                <h4 id="adm-occ" class="text-6xl font-luxury mt-4 text-black">0</h4>
+                <p class="text-xs text-black/60 mt-3">Currently checked in</p>
+            </div>
+            <div class="bg-gradient-to-br from-gray-900 to-black text-white p-12 rounded-[40px]">
+                <p class="text-[10px] uppercase text-gray-500 tracking-widest">Total Bookings</p>
+                <h4 id="adm-total-bookings" class="text-6xl font-luxury mt-4 text-white">0</h4>
+                <p class="text-xs text-gray-400 mt-3">All-time reservations</p>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <h3 class="text-xs font-bold uppercase tracking-widest mb-8 text-gray-400 px-4">Master Resident Ledger</h3>
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-100 text-[10px] uppercase tracking-widest text-gray-500">
+                    <tr>
+                        <th class="p-8 border-b">Guest Identity</th>
+                        <th class="p-8 border-b">Duration</th>
+                        <th class="p-8 border-b">Revenue Impact</th>
+                        <th class="p-8 border-b">Contact Details</th>
+                        <th class="p-8 border-b text-right">Operations</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-table-body"></tbody>
+            </table>
+        </div>
+        </div>
+        <!-- End Dashboard Tab -->
+
+        <!-- Active Ledger Tab -->
+        <div id="admin-ledger" class="admin-content hidden">
+            <h3 class="text-3xl font-luxury mb-8 text-gold">Active Estate Ledger</h3>
+            <p class="text-sm text-gray-500 mb-12">Real-time view of current and recent guest reservations</p>
+
+            <div id="ledger-feed" class="space-y-6">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+
+            <div class="mt-12 text-center">
+                <p class="text-xs text-gray-400 uppercase tracking-widest">End of Active Reservations</p>
+            </div>
+        </div>
+        <!-- End Active Ledger Tab -->
+
+        <!-- Gallery Tab -->
+        <div id="admin-gallery" class="admin-content hidden">
+            <h3 class="text-3xl font-luxury mb-8 text-gold">Hotel Gallery Management</h3>
+
+            <div id="gallery-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                <!-- Dynamic gallery items will be inserted here -->
+            </div>
+
+            <!-- Add New Gallery Item -->
+            <div class="glass-3d p-8 rounded-3xl text-center border-2 border-dashed border-gold/30 hover:border-gold transition cursor-pointer" onclick="gallery.showAddForm()">
+                <div class="text-6xl mb-4">📸</div>
+                <h4 class="font-luxury text-2xl mb-2 text-gold">Add New Image</h4>
+                <p class="text-sm text-gray-500 mb-6">Add beautiful images to showcase your property</p>
+                <button class="bg-gold text-black px-8 py-4 rounded-full font-bold uppercase text-xs tracking-widest hover:bg-black hover:text-gold transition">
+                    + Add Image
+                </button>
+            </div>
+        </div>
+        <!-- End Gallery Tab -->
+
+        <!-- Edit/Add Gallery Modal -->
+        <div id="gallery-modal" class="hidden fixed inset-0 z-[7000] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
+            <div class="bg-white rounded-3xl p-8 md:p-12 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 id="modal-title" class="text-3xl font-luxury text-gold">Edit Gallery Image</h3>
+                    <button onclick="gallery.closeModal()" class="text-4xl text-gray-400 hover:text-black transition">×</button>
+                </div>
+
+                <form id="gallery-form" class="space-y-6">
+                    <input type="hidden" id="gallery-id">
+
+                    <div>
+                        <label class="text-xs uppercase tracking-widest text-gray-500 mb-3 block">Image URL</label>
+                        <input type="url" id="gallery-url" class="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition" placeholder="https://images.unsplash.com/photo-..." required="">
+                        <p class="text-xs text-gray-400 mt-2">Enter the full URL of the image</p>
+                    </div>
+
+                    <div>
+                        <label class="text-xs uppercase tracking-widest text-gray-500 mb-3 block">Image Preview</label>
+                        <div id="image-preview" class="w-full h-64 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center border-2 border-gray-200">
+                            <p class="text-gray-400">Image preview will appear here</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-xs uppercase tracking-widest text-gray-500 mb-3 block">Title</label>
+                        <input type="text" id="gallery-title" class="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition" placeholder="e.g., The Infinity Pool" required="">
+                    </div>
+
+                    <div>
+                        <label class="text-xs uppercase tracking-widest text-gray-500 mb-3 block">Description</label>
+                        <textarea id="gallery-description" rows="3" class="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition resize-none" placeholder="Brief description of the image" required=""></textarea>
+                    </div>
+
+                    <div class="flex gap-4 pt-4">
+                        <button type="button" onclick="gallery.saveImage()" class="flex-1 bg-gold text-black py-4 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-black hover:text-gold transition">
+                            Save Image
+                        </button>
+                        <button type="button" onclick="gallery.closeModal()" class="px-8 bg-gray-200 text-black py-4 rounded-2xl font-bold uppercase tracking-widest text-sm hover:bg-gray-300 transition">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Registry Tab -->
+        <div id="admin-registry" class="admin-content hidden">
+            <h3 class="text-3xl font-luxury mb-8 text-gold">Create New Registry Entry</h3>
+
+            <div class="max-w-3xl mx-auto">
+                <form id="admin-book-form" class="space-y-8 glass-3d p-10 rounded-3xl">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-xs uppercase tracking-widest text-gray-500 mb-3 block">Guest Name</label>
+                            <input type="text" id="admin-gName" class="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition" placeholder="Full Name" required="">
+                        </div>
+                        <div>
+                            <label class="text-xs uppercase tracking-widest text-gray-500 mb-3 block">Email Address</label>
+                            <input type="email" id="admin-gEmail" class="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition" placeholder="email@example.com" required="">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-xs uppercase tracking-widest text-gray-500 mb-3 block">Phone Number</label>
+                            <input type="tel" id="admin-gPhone" class="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition" placeholder="+91 9999999999" required="">
+                        </div>
+                        <div>
+                            <label class="text-xs uppercase tracking-widest text-gray-500 mb-3 block">Room Type</label>
+                            <select id="admin-gTier" class="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition" required="">
+                                <option value="8000">Sovereign Suite — ₹8,000/night</option>
+                                <option value="18000">Imperial Penthouse — ₹18,000/night</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-xs uppercase tracking-widest text-gray-500 mb-3 block">Check-In Date</label>
+                            <input type="date" id="admin-cin" class="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition" required="">
+                        </div>
+                        <div>
+                            <label class="text-xs uppercase tracking-widest text-gray-500 mb-3 block">Check-Out Date</label>
+                            <input type="date" id="admin-cout" class="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:border-gold outline-none transition" required="">
+                        </div>
+                    </div>
+
+                    <div class="pt-6">
+                        <button type="button" onclick="admin.createRegistry()" class="w-full bg-gold text-black py-6 rounded-2xl font-black uppercase tracking-[5px] text-sm hover:bg-black hover:text-gold transition shadow-2xl">
+                            ✓ Create Registry Entry
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- End Registry Tab -->
+        </div>
+    </div>
+
+    <script>
+        // 1. DATA CORE
+        let DB = {
+            bookings: JSON.parse(localStorage.getItem('gh_v12_db')) || [],
+            revenue: parseInt(localStorage.getItem('gh_v12_rev')) || 0,
+            totalBookingsCount: parseInt(localStorage.getItem('gh_v12_total_bookings')) || 0,
+            gallery: JSON.parse(localStorage.getItem('gh_v12_gallery')) || [
+                {
+                    id: 1,
+                    url: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d',
+                    title: 'The Infinity Pool',
+                    description: 'Breathtaking rooftop infinity pool with city views'
+                },
+                {
+                    id: 2,
+                    url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b',
+                    title: 'Royal Master Wing',
+                    description: 'Luxurious master bedroom with premium furnishings'
+                },
+                {
+                    id: 3,
+                    url: 'https://images.unsplash.com/photo-1560662105-57f8ad6ae2d1',
+                    title: 'Imperial Dining',
+                    description: 'Elegant dining hall with chandelier lighting'
+                },
+                {
+                    id: 4,
+                    url: 'https://images.unsplash.com/photo-1540541338287-41700207dee6',
+                    title: 'Lakeside Sanctuary',
+                    description: 'Peaceful lakeside view with natural beauty'
+                },
+                {
+                    id: 5,
+                    url: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
+                    title: 'Grand Entrance',
+                    description: 'Majestic entrance with luxury architecture'
+                },
+                {
+                    id: 6,
+                    url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945',
+                    title: 'Spa & Wellness',
+                    description: 'Relaxing spa with premium treatments'
+                }
+            ]
+        };
+
+        // 2. GALLERY MANAGEMENT
+        const gallery = {
+            render() {
+                const grid = document.getElementById('gallery-grid');
+                if (!grid) return;
+
+                grid.innerHTML = DB.gallery.map(img => `
+                    <div class="card-3d bg-gray-50 rounded-3xl overflow-hidden border border-gray-200 hover:shadow-2xl transition">
+                        <img src="${img.url}" class="w-full h-48 object-cover" alt="${img.title}" onerror="this.src='https://via.placeholder.com/400x300?text=Image+Not+Found'">
+                        <div class="p-6">
+                            <h4 class="font-luxury text-xl mb-2">${img.title}</h4>
+                            <p class="text-xs text-gray-500 mb-4">${img.description}</p>
+                            <div class="flex gap-2">
+                                <button onclick="gallery.showEditForm(${img.id})" class="flex-1 bg-gold text-black px-4 py-2 rounded-full text-xs font-bold hover:bg-black hover:text-gold transition">Edit</button>
+                                <button onclick="gallery.deleteImage(${img.id})" class="flex-1 bg-gray-200 text-black px-4 py-2 rounded-full text-xs font-bold hover:bg-red-500 hover:text-white transition">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            showAddForm() {
+                document.getElementById('modal-title').innerText = 'Add New Gallery Image';
+                document.getElementById('gallery-id').value = '';
+                document.getElementById('gallery-url').value = '';
+                document.getElementById('gallery-title').value = '';
+                document.getElementById('gallery-description').value = '';
+                document.getElementById('image-preview').innerHTML = '<p class="text-gray-400">Image preview will appear here</p>';
+                document.getElementById('gallery-modal').classList.remove('hidden');
+            },
+
+            showEditForm(id) {
+                const img = DB.gallery.find(g => g.id === id);
+                if (!img) return;
+
+                document.getElementById('modal-title').innerText = 'Edit Gallery Image';
+                document.getElementById('gallery-id').value = img.id;
+                document.getElementById('gallery-url').value = img.url;
+                document.getElementById('gallery-title').value = img.title;
+                document.getElementById('gallery-description').value = img.description;
+
+                // Show preview
+                document.getElementById('image-preview').innerHTML = `<img src="${img.url}" class="w-full h-full object-cover" alt="${img.title}">`;
+
+                document.getElementById('gallery-modal').classList.remove('hidden');
+            },
+
+            closeModal() {
+                document.getElementById('gallery-modal').classList.add('hidden');
+                document.getElementById('gallery-form').reset();
+            },
+
+            saveImage() {
+                const id = document.getElementById('gallery-id').value;
+                const url = document.getElementById('gallery-url').value;
+                const title = document.getElementById('gallery-title').value;
+                const description = document.getElementById('gallery-description').value;
+
+                if (!url || !title || !description) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+
+                if (id) {
+                    // Edit existing image
+                    const index = DB.gallery.findIndex(g => g.id === parseInt(id));
+                    if (index !== -1) {
+                        DB.gallery[index] = { id: parseInt(id), url, title, description };
+                    }
+                } else {
+                    // Add new image
+                    const newId = DB.gallery.length > 0 ? Math.max(...DB.gallery.map(g => g.id)) + 1 : 1;
+                    DB.gallery.push({ id: newId, url, title, description });
+                }
+
+                // Save to localStorage
+                localStorage.setItem('gh_v12_gallery', JSON.stringify(DB.gallery));
+
+                // Re-render gallery
+                this.render();
+                this.closeModal();
+
+                alert(id ? '✅ Gallery image updated successfully!' : '✅ New gallery image added successfully!');
+            },
+
+            deleteImage(id) {
+                if (!confirm('Are you sure you want to delete this image from the gallery?')) {
+                    return;
+                }
+
+                DB.gallery = DB.gallery.filter(g => g.id !== id);
+                localStorage.setItem('gh_v12_gallery', JSON.stringify(DB.gallery));
+                this.render();
+
+                alert('✅ Gallery image deleted successfully!');
+            }
+        };
+
+        // Image preview on URL input
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlInput = document.getElementById('gallery-url');
+            if (urlInput) {
+                urlInput.addEventListener('input', (e) => {
+                    const url = e.target.value;
+                    if (url) {
+                        document.getElementById('image-preview').innerHTML = `<img src="${url}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<p class=\\'text-red-500\\'>Invalid image URL</p>'">`;
+                    } else {
+                        document.getElementById('image-preview').innerHTML = '<p class="text-gray-400">Image preview will appear here</p>';
+                    }
+                });
+            }
+        });
+
+        // 3. SLIDER
+        const slider = {
+            current: 0,
+            slides: document.querySelectorAll('.slide'),
+            isMoving: false,
+            move(dir) {
+                if(this.isMoving) return;
+                this.isMoving = true;
+                const prevSlide = this.slides[this.current];
+                this.current = (this.current + dir + this.slides.length) % this.slides.length;
+                const nextSlide = this.slides[this.current];
+                const mode = nextSlide.dataset.enter;
+
+                let startX = 0, startY = 0;
+                if(mode === 'from-top') startY = '-100%';
+                if(mode === 'from-bottom') startY = '100%';
+                if(mode === 'from-left') startX = '-100%';
+                if(mode === 'from-right') startX = '100%';
+
+                gsap.set(nextSlide, { x: startX, y: startY, opacity: 1, display: 'block', zIndex: 15 });
+                const tl = gsap.timeline({
+                    onComplete: () => {
+                        prevSlide.classList.remove('active');
+                        prevSlide.style.display = 'none';
+                        nextSlide.classList.add('active');
+                        this.isMoving = false;
+                    }
+                });
+                tl.to(nextSlide, { x: 0, y: 0, duration: 1.5, ease: "expo.inOut" })
+                  .to(nextSlide.querySelector('.slide-caption'), { opacity: 1, y: 0, duration: 1 }, "-=0.5");
+            }
+        };
+
+        // 4. BOOKING LOGIC
+        const logic = {
+            process() {
+                const name = document.getElementById('gName').value;
+                const email = document.getElementById('gEmail').value;
+                const phone = document.getElementById('gPhone').value;
+                const cin = document.getElementById('cin').value;
+                const cout = document.getElementById('cout').value;
+                const pricePerNight = parseInt(document.getElementById('gTier').value);
+
+                if(!name || !email || !phone || !cin || !cout) {
+                    alert("System requires complete guest information including email and phone.");
+                    return;
+                }
+
+                if(DB.bookings.length >= 20) {
+                    alert("Estate capacity reached (20/20).");
+                    return;
+                }
+
+                const d1 = new Date(cin);
+                const d2 = new Date(cout);
+                const nights = (d2 - d1) / (1000 * 60 * 60 * 24);
+
+                if(nights <= 0) {
+                    alert("Stay duration error. Check-out must be after check-in.");
+                    return;
+                }
+
+                const totalBill = pricePerNight * nights;
+                const roomType = pricePerNight === 8000 ? "Sovereign Suite" : "Imperial Penthouse";
+
+                // Calculate total with GST (12%)
+                const taxAmount = Math.round(totalBill * 0.12);
+                const totalWithTax = totalBill + taxAmount;
+
+                // Create booking entry
+                const entry = {
+                    id: 'GH-' + Math.floor(Math.random()*999999),
+                    name,
+                    email,
+                    phone,
+                    cin,
+                    cout,
+                    nights,
+                    pricePerNight,
+                    total: totalBill,
+                    timestamp: new Date().toLocaleString()
+                };
+
+                // Razorpay Payment Integration
+                const options = {
+                    key: "rzp_test_1DP5mmOlF5G5ag", // Test key - replace with your live key
+                    amount: totalWithTax * 100, // Amount in paise (₹1 = 100 paise)
+                    currency: "INR",
+                    name: "GRAND HORIZON",
+                    description: `${roomType} - ${nights} Night(s)`,
+                    image: "https://via.placeholder.com/150?text=GH", // Your hotel logo
+                    prefill: {
+                        name: name,
+                        email: email,
+                        contact: phone
+                    },
+                    notes: {
+                        booking_id: entry.id,
+                        check_in: cin,
+                        check_out: cout,
+                        room_type: pricePerNight === 8000 ? "Sovereign Suite" : "Imperial Penthouse"
+                    },
+                    theme: {
+                        color: "#D4AF37"
+                    },
+                    method: {
+                        upi: true,
+                        card: true,
+                        netbanking: true,
+                        wallet: false
+                    },
+                    config: {
+                        display: {
+                            blocks: {
+                                upi: {
+                                    name: "Pay using UPI",
+                                    instruments: [
+                                        {
+                                            method: "upi",
+                                            flows: ["qr", "collect", "intent"]
+                                        }
+                                    ]
+                                },
+                                card: {
+                                    name: "Pay using Card",
+                                    instruments: [
+                                        {
+                                            method: "card"
+                                        }
+                                    ]
+                                },
+                                netbanking: {
+                                    name: "Pay using Netbanking",
+                                    instruments: [
+                                        {
+                                            method: "netbanking"
+                                        }
+                                    ]
+                                }
+                            },
+                            sequence: ["block.upi", "block.card", "block.netbanking"],
+                            preferences: {
+                                show_default_blocks: true
+                            }
+                        }
+                    },
+                    handler: function (response) {
+                        // Payment successful
+                        entry.paymentId = response.razorpay_payment_id;
+                        entry.paymentSignature = response.razorpay_signature;
+
+                        DB.bookings.push(entry);
+                        DB.revenue += totalBill;
+                        DB.totalBookingsCount += 1;
+                        logic.sync();
+                        ui.render();
+
+                        // Generate and download receipt
+                        admin.pdf(entry.id);
+
+                        // Send notifications
+                        logic.sendNotifications(entry);
+
+                        alert(`✅ Payment Successful!\n\nBooking ID: ${entry.id}\nPayment ID: ${response.razorpay_payment_id}\nTotal Paid: ₹${totalWithTax.toLocaleString()}\n\nReceipt downloaded automatically.\nConfirmation sent to email and WhatsApp.`);
+
+                        // Clear form
+                        document.getElementById('book-form').reset();
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            alert('Payment cancelled. Your booking was not confirmed.');
+                        }
+                    }
+                };
+
+                // Open Razorpay payment modal
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function (response){
+                    alert(`Payment Failed!\n\nError: ${response.error.description}\n\nPlease try again or contact support.`);
+                });
+
+                rzp.open();
+            },
+
+            sendNotifications(booking) {
+                // Email notification
+                this.sendEmail(booking);
+
+                // WhatsApp notification
+                this.sendWhatsApp(booking);
+            },
+
+            sendEmail(booking) {
+                // IMPORTANT: Integrate with email service (SendGrid, Mailgun, etc.) to actually send emails
+                // This currently logs the email content to console
+                const taxAmount = Math.round(booking.total * 0.12);
+                const totalWithTax = booking.total + taxAmount;
+                const roomType = booking.pricePerNight === 8000 ? "Sovereign Suite (Deluxe)" : "Imperial Penthouse (Premium)";
+
+                // Send email to GUEST
+                console.log('📧 EMAIL SENT TO GUEST:', booking.email);
+
+                // Send email to HOTEL ADMIN (Grand Horizon)
+                console.log('📧 EMAIL SENT TO ADMIN: 09bhavy@gmail.com');
+                console.log('Subject: 🏛️ Grand Horizon - Booking Confirmation Receipt');
+                console.log('Body:', `
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #050505 0%, #1a1a1a 100%); padding: 40px; text-align: center; border: 4px solid #D4AF37; }
+        .header h1 { color: #D4AF37; font-size: 36px; margin: 0; font-family: Georgia, serif; letter-spacing: 3px; }
+        .header p { color: #ffffff; font-size: 14px; margin: 10px 0 0 0; letter-spacing: 2px; }
+        .content { padding: 40px 30px; }
+        .section { margin-bottom: 30px; }
+        .section-title { font-size: 18px; color: #D4AF37; font-weight: bold; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #D4AF37; }
+        .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .detail-label { font-weight: bold; color: #333; }
+        .detail-value { color: #666; }
+        .highlight-box { background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%); color: #000; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; }
+        .highlight-box h2 { margin: 0; font-size: 28px; }
+        .amenities { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .amenity-item { padding: 8px; background: #f9f9f9; border-radius: 5px; font-size: 13px; }
+        .amenity-item:before { content: "✓ "; color: #D4AF37; font-weight: bold; }
+        .footer { background: #050505; color: white; padding: 30px; text-align: center; }
+        .footer a { color: #D4AF37; text-decoration: none; }
+        .button { display: inline-block; background: #D4AF37; color: #000; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }
+        .status-confirmed { background: #28a745; color: white; padding: 10px 20px; border-radius: 20px; display: inline-block; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>GRAND HORIZON</h1>
+            <p>SOVEREIGN ENTERPRISE SUITE</p>
+            <p style="font-size: 11px; margin-top: 15px; opacity: 0.8;">123 Luxury Boulevard, Mumbai - 400001 | +91 22 1234 5678</p>
+        </div>
+
+        <div class="content">
+            <h2 style="color: #333; text-align: center; margin-bottom: 10px;">🎉 Booking Confirmed!</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 30px;">Dear ${booking.name}, your luxury stay has been successfully reserved.</p>
+
+            <div class="status-confirmed" style="text-align: center; width: 100%;">✓ CONFIRMED & PAID</div>
+
+            <div class="section">
+                <div class="section-title">📋 BOOKING INFORMATION</div>
+                <div class="detail-row">
+                    <span class="detail-label">Booking ID:</span>
+                    <span class="detail-value" style="font-weight: bold; color: #D4AF37;">${booking.id}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Booking Date:</span>
+                    <span class="detail-value">${booking.timestamp}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Transaction ID:</span>
+                    <span class="detail-value">TXN${booking.id}</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">👤 GUEST DETAILS</div>
+                <div class="detail-row">
+                    <span class="detail-label">Name:</span>
+                    <span class="detail-value">${booking.name}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">${booking.email}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Phone:</span>
+                    <span class="detail-value">${booking.phone}</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🏨 RESERVATION DETAILS</div>
+                <div class="detail-row">
+                    <span class="detail-label">Room Type:</span>
+                    <span class="detail-value">${roomType}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Check-In:</span>
+                    <span class="detail-value">${booking.cin} at 2:00 PM</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Check-Out:</span>
+                    <span class="detail-value">${booking.cout} at 12:00 PM</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Total Nights:</span>
+                    <span class="detail-value">${booking.nights} Night(s)</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Occupancy:</span>
+                    <span class="detail-value">2 Adults + 1 Child (Max)</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💰 PAYMENT SUMMARY</div>
+                <div class="detail-row">
+                    <span class="detail-label">Room Charges (${booking.nights} nights × ₹${booking.pricePerNight.toLocaleString()}):</span>
+                    <span class="detail-value">₹${booking.total.toLocaleString()}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">GST (12%):</span>
+                    <span class="detail-value">₹${taxAmount.toLocaleString()}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Service Charge:</span>
+                    <span class="detail-value">Complimentary</span>
+                </div>
+                <div class="highlight-box">
+                    <p style="margin: 0; font-size: 14px; opacity: 0.8;">TOTAL AMOUNT PAID</p>
+                    <h2>₹${totalWithTax.toLocaleString()}</h2>
+                    <p style="margin: 10px 0 0 0; font-size: 12px;">Payment Method: Online</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🌟 COMPLIMENTARY AMENITIES</div>
+                <div class="amenities">
+                    <div class="amenity-item">High-Speed WiFi (100 Mbps)</div>
+                    <div class="amenity-item">Welcome Drinks</div>
+                    <div class="amenity-item">Daily Breakfast Buffet</div>
+                    <div class="amenity-item">Airport Pickup & Drop</div>
+                    <div class="amenity-item">24/7 Room Service</div>
+                    <div class="amenity-item">Spa & Wellness Access</div>
+                    <div class="amenity-item">Swimming Pool & Gym</div>
+                    <div class="amenity-item">Valet Parking</div>
+                    <div class="amenity-item">Concierge Services</div>
+                    <div class="amenity-item">Laundry (2 pieces/day)</div>
+                </div>
+            </div>
+
+            <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border-left: 4px solid #D4AF37;">
+                <h3 style="margin: 0 0 15px 0; color: #D4AF37; font-size: 16px;">📌 IMPORTANT INFORMATION</h3>
+                <p style="margin: 8px 0; font-size: 13px; color: #555;">✓ Carry a valid government-issued photo ID for check-in</p>
+                <p style="margin: 8px 0; font-size: 13px; color: #555;">✓ Early check-in/late check-out subject to availability</p>
+                <p style="margin: 8px 0; font-size: 13px; color: #555;">✓ 24/7 Emergency Contact: +91 22 1234 5678</p>
+                <p style="margin: 8px 0; font-size: 13px; color: #555;">✓ Free cancellation up to 48 hours before check-in</p>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="#" class="button">VIEW BOOKING DETAILS</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <h3 style="color: #D4AF37; margin: 0 0 15px 0;">GRAND HORIZON SOVEREIGN ESTATE</h3>
+            <p style="margin: 10px 0; font-size: 13px;">123 Luxury Boulevard, Premium District, Mumbai - 400001</p>
+            <p style="margin: 10px 0; font-size: 13px;">Phone: +91 22 1234 5678 | Email: <a href="mailto:reservations@grandhorizon.com">reservations@grandhorizon.com</a></p>
+            <p style="margin: 10px 0; font-size: 13px;">Website: <a href="https://www.grandhorizon.com">www.grandhorizon.com</a></p>
+            <p style="margin: 20px 0 10px 0; font-size: 12px; opacity: 0.7;">Follow us on social media: Facebook | Instagram | Twitter | LinkedIn</p>
+            <p style="margin: 10px 0; font-size: 11px; opacity: 0.6;">This is an automated email. Please do not reply directly to this message.</p>
+        </div>
+    </div>
+</body>
+</html>
+                `);
+
+                // In production, integrate with email service:
+                /*
+                fetch('YOUR_EMAIL_API_ENDPOINT', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: booking.email,
+                        subject: '🏛️ Grand Horizon - Booking Confirmation Receipt',
+                        html: emailHTML
+                    })
+                });
+                */
+            },
+
+            sendWhatsApp(booking) {
+                // WhatsApp Business API integration
+                const taxAmount = Math.round(booking.total * 0.12);
+                const totalWithTax = booking.total + taxAmount;
+                const roomType = booking.pricePerNight === 8000 ? "Sovereign Suite (Deluxe)" : "Imperial Penthouse (Premium)";
+
+                const message = `
+🏛️ *GRAND HORIZON* 🏛️
+_Sovereign Enterprise Suite_
+
+━━━━━━━━━━━━━━━━━━━━
+✅ *BOOKING CONFIRMED*
+━━━━━━━━━━━━━━━━━━━━
+
+Dear *${booking.name}*,
+
+Your luxury reservation at Grand Horizon has been successfully confirmed! Thank you for choosing us for your stay.
+
+📋 *BOOKING INFORMATION*
+━━━━━━━━━━━━━━━━━━━━
+🆔 Booking ID: *${booking.id}*
+🗓️ Booked On: ${booking.timestamp}
+💳 Transaction: TXN${booking.id}
+✅ Status: *PAID & CONFIRMED*
+
+👤 *GUEST DETAILS*
+━━━━━━━━━━━━━━━━━━━━
+📝 Name: ${booking.name}
+📧 Email: ${booking.email}
+📞 Phone: ${booking.phone}
+
+🏨 *RESERVATION DETAILS*
+━━━━━━━━━━━━━━━━━━━━
+🛏️ Room Type: *${roomType}*
+📅 Check-In: *${booking.cin}* at 2:00 PM
+📅 Check-Out: *${booking.cout}* at 12:00 PM
+🌙 Total Nights: *${booking.nights} Night(s)*
+👥 Occupancy: 2 Adults + 1 Child (Max)
+
+💰 *PAYMENT SUMMARY*
+━━━━━━━━━━━━━━━━━━━━
+🏷️ Room Charges: ₹${booking.total.toLocaleString()}
+🧾 GST (12%): ₹${taxAmount.toLocaleString()}
+🎁 Service Charge: Complimentary
+━━━━━━━━━━━━━━━━━━━━
+💵 *TOTAL PAID: ₹${totalWithTax.toLocaleString()}*
+
+🌟 *COMPLIMENTARY AMENITIES*
+━━━━━━━━━━━━━━━━━━━━
+✓ High-Speed WiFi (100 Mbps)
+✓ Welcome Drinks on Arrival
+✓ Daily Breakfast Buffet
+✓ Airport Pickup & Drop
+✓ 24/7 Room Service
+✓ Spa & Wellness Access
+✓ Swimming Pool & Gym Access
+✓ Valet Parking
+✓ Concierge Services
+✓ Laundry Service (2 pieces/day)
+
+📌 *IMPORTANT INFORMATION*
+━━━━━━━━━━━━━━━━━━━━
+• Carry valid govt. ID for check-in
+• Early check-in/late check-out: Subject to availability
+• Free cancellation: Up to 48 hours before check-in
+• 24/7 Emergency: +91 22 1234 5678
+
+📍 *LOCATION*
+━━━━━━━━━━━━━━━━━━━━
+Grand Horizon Sovereign Estate
+123 Luxury Boulevard
+Premium District, Mumbai - 400001
+
+📞 *CONTACT US*
+━━━━━━━━━━━━━━━━━━━━
+☎️ Phone: +91 22 1234 5678
+📧 Email: reservations@grandhorizon.com
+🌐 Website: www.grandhorizon.com
+
+🗺️ GPS: 19.0760° N, 72.8777° E
+
+━━━━━━━━━━━━━━━━━━━━
+
+✨ *We look forward to welcoming you!* ✨
+
+Your comfort and satisfaction are our top priorities. Should you need any assistance before your arrival, please don't hesitate to contact us.
+
+Have a wonderful day! 🌞
+
+_Grand Horizon - Where Luxury Meets Excellence_
+━━━━━━━━━━━━━━━━━━━━
+
+📱 Follow us on social media:
+@GrandHorizonHotel
+
+🔒 This is an automated message. Please do not share your booking ID with anyone.
+                `.trim();
+
+                // Send WhatsApp to GUEST
+                console.log('📱 WHATSAPP SENT TO GUEST:', booking.phone);
+
+                // Send WhatsApp to HOTEL ADMIN (Grand Horizon)
+                console.log('📱 WHATSAPP SENT TO ADMIN: 9714588515');
+                console.log('Message:', message);
+
+                // PRODUCTION SETUP INSTRUCTIONS:
+                // To actually send WhatsApp messages, integrate with:
+                // 1. WhatsApp Business API (https://business.whatsapp.com)
+                // 2. Twilio WhatsApp API (https://www.twilio.com/whatsapp)
+                // 3. MessageBird (https://messagebird.com)
+                // 4. Or use direct WhatsApp API with phone 9714588515
+
+                // Example implementation:
+                /*
+                fetch('YOUR_WHATSAPP_API_ENDPOINT', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: booking.phone,
+                        message: message
+                    })
+                });
+                */
+
+                // Alternative: Open WhatsApp Web with pre-filled message
+                const encodedMessage = encodeURIComponent(message);
+                const whatsappUrl = `https://wa.me/${booking.phone.replace(/\D/g, '')}?text=${encodedMessage}`;
+                console.log('WhatsApp URL:', whatsappUrl);
+                // window.open(whatsappUrl, '_blank'); // Uncomment to auto-open WhatsApp
+            },
+
+            manualCheckout(id) {
+                const booking = DB.bookings.find(b => b.id === id);
+                if (!booking) {
+                    alert("Booking not found.");
+                    return;
+                }
+
+                if(confirm(`Check out ${booking.name}?\n\nThe guest will be removed from active bookings, but the revenue (₹${booking.total.toLocaleString()}) will remain in your total sales.`)) {
+                    // Remove booking from active list but DO NOT reduce revenue
+                    DB.bookings = DB.bookings.filter(b => b.id !== id);
+
+                    // Revenue stays the same - we earned this money!
+                    // DB.revenue is NOT modified here
+
+                    this.sync();
+                    admin.renderTable();
+                    admin.renderMap();
+                    admin.initAnalytics();
+                    admin.renderLedger();
+                    ui.render();
+
+                    alert(`✅ ${booking.name} checked out successfully!\n\n💰 Revenue earned: ₹${booking.total.toLocaleString()}\n📊 Total lifetime revenue remains: ₹${DB.revenue.toLocaleString()}`);
+                }
+            },
+
+            sync() {
+                localStorage.setItem('gh_v12_db', JSON.stringify(DB.bookings));
+                localStorage.setItem('gh_v12_rev', DB.revenue);
+                localStorage.setItem('gh_v12_total_bookings', DB.totalBookingsCount);
+            }
+        };
+
+        // 5. INTELLIGENCE HUB ENGINE
+        let myChart = null;
+        const admin = {
+            open() {
+                const pass = prompt("Enter Intelligence Access Key:");
+                if(pass === "090909") {
+                    document.getElementById('admin-panel').classList.remove('hidden');
+                    this.renderTable();
+                    this.initAnalytics();
+                    this.renderMap();
+                    gallery.render();
+                } else {
+                    alert("Unauthorized Access Attempt.");
+                }
+            },
+            close() { document.getElementById('admin-panel').classList.add('hidden'); },
+
+            showTab(tabName) {
+                // Hide all tabs
+                document.querySelectorAll('.admin-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.querySelectorAll('.admin-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+
+                // Show selected tab
+                document.getElementById('admin-' + tabName).classList.remove('hidden');
+                document.getElementById('tab-' + tabName).classList.add('active');
+            },
+
+            createRegistry() {
+                const name = document.getElementById('admin-gName').value;
+                const email = document.getElementById('admin-gEmail').value;
+                const phone = document.getElementById('admin-gPhone').value;
+                const cin = document.getElementById('admin-cin').value;
+                const cout = document.getElementById('admin-cout').value;
+                const pricePerNight = parseInt(document.getElementById('admin-gTier').value);
+
+                if(!name || !email || !phone || !cin || !cout) {
+                    alert("All fields are required to create a registry entry.");
+                    return;
+                }
+
+                if(DB.bookings.length >= 20) {
+                    alert("Estate capacity reached (20/20). Cannot create new registry.");
+                    return;
+                }
+
+                const d1 = new Date(cin);
+                const d2 = new Date(cout);
+                const nights = (d2 - d1) / (1000 * 60 * 60 * 24);
+
+                if(nights <= 0) {
+                    alert("Check-out date must be after check-in date.");
+                    return;
+                }
+
+                const totalBill = pricePerNight * nights;
+
+                // Create booking entry from admin panel
+                const entry = {
+                    id: 'GH-' + Math.floor(Math.random()*999999),
+                    name,
+                    email,
+                    phone,
+                    cin,
+                    cout,
+                    nights,
+                    pricePerNight,
+                    total: totalBill,
+                    timestamp: new Date().toLocaleString()
+                };
+
+                DB.bookings.push(entry);
+                DB.revenue += totalBill;
+                DB.totalBookingsCount += 1;
+                logic.sync();
+                this.renderTable();
+                this.renderMap();
+                this.initAnalytics();
+                this.renderLedger();
+                ui.render();
+
+                alert(`✅ Registry entry created successfully!\n\nBooking ID: ${entry.id}\nGuest: ${name}\nTotal: ₹${totalBill.toLocaleString()}\nNights: ${nights}`);
+
+                // Clear form
+                document.getElementById('admin-book-form').reset();
+
+                // Switch back to dashboard
+                this.showTab('dashboard');
+            },
+
+            renderMap() {
+                const f1 = document.getElementById('map-f1');
+                const f2 = document.getElementById('map-f2');
+                f1.innerHTML = ''; f2.innerHTML = '';
+                for(let i=1; i<=20; i++) {
+                    const isOcc = i <= DB.bookings.length;
+                    const el = `<div class="room-node ${isOcc ? 'room-occupied' : 'room-vacant'}">${i}</div>`;
+                    if(i <= 10) f1.innerHTML += el;
+                    else f2.innerHTML += el;
+                }
+            },
+
+            initAnalytics() {
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+                const lastBookings = DB.bookings.slice(-8);
+                if(myChart) myChart.destroy();
+                myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: lastBookings.map(b => b.name.split(' ')[0]),
+                        datasets: [{
+                            label: 'Sales Flow',
+                            data: lastBookings.map(b => b.total),
+                            borderColor: '#D4AF37',
+                            backgroundColor: 'rgba(212, 175, 55, 0.05)',
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#000'
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+            },
+
+            updateSalesPeriod() {
+                const period = document.getElementById('sales-period').value;
+                const now = new Date();
+                let filteredBookings = [];
+
+                switch(period) {
+                    case 'daily':
+                        // Today's bookings
+                        filteredBookings = DB.bookings.filter(b => {
+                            const bookingDate = new Date(b.timestamp);
+                            return bookingDate.toDateString() === now.toDateString();
+                        });
+                        break;
+
+                    case 'weekly':
+                        // This week's bookings
+                        const weekStart = new Date(now);
+                        weekStart.setDate(now.getDate() - now.getDay()); // Start of week (Sunday)
+                        weekStart.setHours(0, 0, 0, 0);
+                        filteredBookings = DB.bookings.filter(b => {
+                            const bookingDate = new Date(b.timestamp);
+                            return bookingDate >= weekStart;
+                        });
+                        break;
+
+                    case 'monthly':
+                        // This month's bookings
+                        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                        filteredBookings = DB.bookings.filter(b => {
+                            const bookingDate = new Date(b.timestamp);
+                            return bookingDate >= monthStart;
+                        });
+                        break;
+
+                    case 'yearly':
+                        // This year's bookings
+                        const yearStart = new Date(now.getFullYear(), 0, 1);
+                        filteredBookings = DB.bookings.filter(b => {
+                            const bookingDate = new Date(b.timestamp);
+                            return bookingDate >= yearStart;
+                        });
+                        break;
+
+                    case 'lifetime':
+                    default:
+                        // All bookings
+                        filteredBookings = DB.bookings;
+                        break;
+                }
+
+                // Calculate total revenue for filtered bookings
+                const periodRevenue = filteredBookings.reduce((sum, b) => sum + b.total, 0);
+                const bookingCount = filteredBookings.length;
+
+                document.getElementById('adm-rev').innerText = "₹" + periodRevenue.toLocaleString();
+
+                // Show booking count
+                const countText = bookingCount === 1 ? '1 booking' : `${bookingCount} bookings`;
+                document.getElementById('adm-rev-count').innerText = countText;
+            },
+
+            renderTable() {
+                // Update sales display with current period
+                this.updateSalesPeriod();
+
+                document.getElementById('adm-occ').innerText = DB.bookings.length;
+                document.getElementById('adm-total-bookings').innerText = DB.totalBookingsCount;
+                const body = document.getElementById('admin-table-body');
+                body.innerHTML = DB.bookings.map(b => `
+                    <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                        <td class="p-8">
+                            <span class="font-luxury font-bold text-2xl text-black">${b.name}</span><br>
+                            <span class="text-[9px] text-gray-400 font-mono">SERIAL: ${b.id}</span>
+                        </td>
+                        <td class="p-8 text-xs font-bold text-gray-600">${b.cin} <br> ${b.cout}<br><span class="text-[9px] text-gray-400">${b.nights || 'N/A'} nights</span></td>
+                        <td class="p-8 font-black text-gold text-xl">₹${b.total.toLocaleString()}</td>
+                        <td class="p-8">
+                            <div class="space-y-1">
+                                <span class="bg-black text-white px-3 py-1 rounded-full text-[9px] font-mono block w-fit">${b.phone}</span>
+                                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-[9px] font-mono block w-fit">${b.email}</span>
+                            </div>
+                        </td>
+                        <td class="p-8 text-right space-x-2">
+                            <button onclick="admin.pdf('${b.id}')" class="bg-gray-100 hover:bg-black hover:text-white px-4 py-2 text-[8px] font-black uppercase rounded-full transition">Receipt</button>
+                            <button onclick="logic.manualCheckout('${b.id}')" class="bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 text-[8px] font-black uppercase rounded-full transition">Check Out</button>
+                        </td>
+                    </tr>
+                `).reverse().join('');
+
+                // Also update the ledger feed
+                this.renderLedger();
+            },
+
+            renderLedger() {
+                const ledgerFeed = document.getElementById('ledger-feed');
+                if (!ledgerFeed) return;
+
+                if (DB.bookings.length === 0) {
+                    ledgerFeed.innerHTML = `
+                        <div class="text-center py-20">
+                            <div class="text-6xl mb-6 opacity-20">📋</div>
+                            <h4 class="text-xl font-luxury text-gray-400 mb-2">No Active Reservations</h4>
+                            <p class="text-sm text-gray-400">All suites are currently vacant</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                ledgerFeed.innerHTML = DB.bookings.slice().reverse().map(b => `
+                    <div class="glass-3d p-8 rounded-3xl border-l-4 border-gold hover:shadow-2xl transition">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+                            <div>
+                                <h4 class="font-luxury text-2xl text-gold mb-2">${b.name}</h4>
+                                <p class="text-xs text-gray-500 font-mono uppercase tracking-wider">ID: ${b.id}</p>
+                                <p class="text-xs text-gray-400 mt-2">${b.timestamp}</p>
+                            </div>
+
+                            <div>
+                                <p class="text-xs uppercase tracking-widest text-gray-400 mb-2">Residence</p>
+                                <p class="text-sm font-bold">${b.pricePerNight === 8000 ? 'Sovereign Suite' : 'Imperial Penthouse'}</p>
+                                <p class="text-xs text-gray-500 mt-1">₹${b.pricePerNight.toLocaleString()}/night</p>
+                            </div>
+
+                            <div>
+                                <p class="text-xs uppercase tracking-widest text-gray-400 mb-2">Duration</p>
+                                <p class="text-sm font-bold">${b.cin} → ${b.cout}</p>
+                                <p class="text-xs text-gray-500 mt-1">${b.nights || 'N/A'} night(s)</p>
+                            </div>
+
+                            <div class="text-right">
+                                <p class="text-xs uppercase tracking-widest text-gray-400 mb-2">Total Revenue</p>
+                                <p class="text-3xl font-luxury text-gold font-bold">₹${b.total.toLocaleString()}</p>
+                                <div class="mt-4 space-x-2">
+                                    <button onclick="admin.pdf('${b.id}')" class="bg-gold text-black px-4 py-2 text-xs font-bold uppercase rounded-full hover:bg-black hover:text-gold transition">
+                                        Receipt
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-6 border-t border-gray-200 grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-xs text-gray-400 mb-1">Email</p>
+                                <p class="text-sm font-mono">${b.email}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 mb-1">Phone</p>
+                                <p class="text-sm font-mono">${b.phone}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            pdf(id) {
+                const b = DB.bookings.find(x => x.id === id);
+                if(!b) {
+                    alert('Booking not found');
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Modern Header with Gradient Effect (Black to Dark Gray)
+                doc.setFillColor(5, 5, 5);
+                doc.rect(0, 0, 210, 75, 'F');
+
+                // Gold accent bars
+                doc.setFillColor(212, 175, 55);
+                doc.rect(0, 0, 210, 3, 'F');
+                doc.rect(0, 72, 210, 3, 'F');
+
+                // Gold side borders
+                doc.rect(0, 0, 3, 75, 'F');
+                doc.rect(207, 0, 3, 75, 'F');
+
+                // Logo/Title
+                doc.setTextColor(212, 175, 55);
+                doc.setFontSize(36);
+                doc.setFont(undefined, 'bold');
+                doc.text("GRAND HORIZON", 105, 30, { align: 'center' });
+
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'normal');
+                doc.text("Sovereign Enterprise Suite", 105, 42, { align: 'center' });
+
+                // Hotel Address & Contact
+                doc.setFontSize(8);
+                doc.setTextColor(200, 200, 200);
+                doc.text("123 Luxury Boulevard, Premium District, Mumbai - 400001", 105, 50, { align: 'center' });
+                doc.text("Tel: +91 22 1234 5678 | Email: reservations@grandhorizon.com", 105, 57, { align: 'center' });
+                doc.text("Website: www.grandhorizon.com | GSTIN: 27AABCU9603R1ZM", 105, 64, { align: 'center' });
+
+                // Booking Receipt Title with Modern Design
+                doc.setFillColor(212, 175, 55);
+                doc.rect(0, 80, 210, 18, 'F');
+
+                // Add decorative corner accents
+                doc.setFillColor(255, 215, 0);
+                doc.triangle(0, 80, 15, 80, 0, 95);
+                doc.triangle(210, 80, 195, 80, 210, 95);
+
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(24);
+                doc.setFont(undefined, 'bold');
+                doc.text("BOOKING CONFIRMATION", 105, 92, { align: 'center' });
+
+                // Status badge
+                doc.setFillColor(34, 197, 94);
+                doc.roundedRect(75, 102, 60, 8, 2, 2, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'bold');
+                doc.text("✓ CONFIRMED & PAID", 105, 107, { align: 'center' });
+
+                // Receipt Number & Date with Modern Cards
+                doc.setFillColor(250, 250, 250);
+                doc.roundedRect(15, 115, 85, 20, 3, 3, 'F');
+                doc.roundedRect(110, 115, 85, 20, 3, 3, 'F');
+
+                // Gold accent left border for cards
+                doc.setFillColor(212, 175, 55);
+                doc.rect(15, 115, 3, 20, 'F');
+                doc.rect(110, 115, 3, 20, 'F');
+
+                doc.setTextColor(100, 100, 100);
+                doc.setFontSize(8);
+                doc.setFont(undefined, 'bold');
+                doc.text("BOOKING ID", 20, 121);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont(undefined, 'bold');
+                doc.setFontSize(12);
+                doc.text(b.id, 20, 130);
+
+                doc.setTextColor(100, 100, 100);
+                doc.setFont(undefined, 'bold');
+                doc.setFontSize(8);
+                doc.text("BOOKING DATE & TIME", 115, 121);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont(undefined, 'bold');
+                doc.setFontSize(10);
+                doc.text(b.timestamp, 115, 130);
+
+                // Guest Information Section
+                let yPos = 145;
+                doc.setFillColor(212, 175, 55);
+                doc.rect(15, yPos, 180, 10, 'F');
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(13);
+                doc.setFont(undefined, 'bold');
+                doc.text("👤 GUEST INFORMATION", 17, yPos + 7);
+
+                yPos += 15;
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'bold');
+                doc.text("Guest Name:", 20, yPos);
+                doc.setFont(undefined, 'normal');
+                doc.text(b.name, 70, yPos);
+
+                yPos += 10;
+                doc.setFont(undefined, 'bold');
+                doc.text("Email Address:", 20, yPos);
+                doc.setFont(undefined, 'normal');
+                doc.text(b.email, 70, yPos);
+
+                yPos += 10;
+                doc.setFont(undefined, 'bold');
+                doc.text("Phone Number:", 20, yPos);
+                doc.setFont(undefined, 'normal');
+                doc.text(b.phone, 70, yPos);
+
+                yPos += 10;
+                doc.setFont(undefined, 'bold');
+                doc.text("Guest ID Type:", 20, yPos);
+                doc.setFont(undefined, 'normal');
+                doc.text("As per Government Records", 70, yPos);
+
+                // Reservation Details Section
+                yPos += 15;
+                doc.setFillColor(212, 175, 55);
+                doc.rect(15, yPos, 180, 10, 'F');
+                doc.setFontSize(13);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(0, 0, 0);
+                doc.text("🏨 RESERVATION DETAILS", 17, yPos + 7);
+
+                yPos += 15;
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'bold');
+                doc.text("Room Type:", 20, yPos);
+                doc.setFont(undefined, 'normal');
+                const roomType = b.pricePerNight === 8000 ? "Sovereign Suite (Deluxe)" : "Imperial Penthouse (Premium)";
+                doc.text(roomType, 70, yPos);
+
+                yPos += 10;
+                doc.setFont(undefined, 'bold');
+                doc.text("Check-In Date:", 20, yPos);
+                doc.setFont(undefined, 'normal');
+                doc.text(b.cin, 70, yPos);
+                doc.setFont(undefined, 'bold');
+                doc.text("Check-In Time:", 120, yPos);
+                doc.setFont(undefined, 'normal');
+                doc.text("2:00 PM", 165, yPos);
+
+                yPos += 10;
+                doc.setFont(undefined, 'bold');
+                doc.text("Check-Out Date:", 20, yPos);
+                doc.setFont(undefined, 'normal');
+                doc.text(b.cout, 70, yPos);
+                doc.setFont(undefined, 'bold');
+                doc.text("Check-Out Time:", 120, yPos);
+                doc.setFont(undefined, 'normal');
+                doc.text("12:00 PM", 165, yPos);
+
+                yPos += 10;
+                doc.setFont(undefined, 'bold');
+                doc.text("Total Nights:", 20, yPos);
+                doc.setFont(undefined, 'normal');
+                doc.text(`${b.nights || 'N/A'} Night(s)`, 70, yPos);
+                doc.setFont(undefined, 'bold');
+                doc.text("No. of Guests:", 120, yPos);
+                doc.setFont(undefined, 'normal');
+                doc.text("As per booking", 165, yPos);
+
+                yPos += 10;
+                doc.setFont(undefined, 'bold');
+                doc.text("Occupancy:", 20, yPos);
+                doc.setFont(undefined, 'normal');
+                doc.text("2 Adults + 1 Child (Max)", 70, yPos);
+
+                // Payment Breakdown Section
+                yPos += 15;
+                doc.setFillColor(212, 175, 55);
+                doc.rect(15, yPos, 180, 10, 'F');
+                doc.setFontSize(13);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(0, 0, 0);
+                doc.text("💰 PAYMENT BREAKDOWN", 17, yPos + 7);
+
+                yPos += 15;
+                doc.setFontSize(10);
+
+                // Table Header
+                doc.setFillColor(230, 230, 230);
+                doc.rect(20, yPos - 5, 170, 8, 'F');
+                doc.setFont(undefined, 'bold');
+                doc.text("Description", 22, yPos);
+                doc.text("Rate", 100, yPos);
+                doc.text("Qty/Nights", 130, yPos);
+                doc.text("Amount", 165, yPos);
+
+                yPos += 8;
+                doc.setFont(undefined, 'normal');
+                doc.text("Room Charges", 22, yPos);
+                doc.text(`₹${(b.pricePerNight || 0).toLocaleString()}`, 100, yPos);
+                doc.text(`${b.nights || 0}`, 130, yPos);
+                doc.text(`₹${b.total.toLocaleString()}`, 165, yPos);
+
+                yPos += 8;
+                const taxAmount = Math.round(b.total * 0.12);
+                doc.text("GST (12%)", 22, yPos);
+                doc.text("-", 100, yPos);
+                doc.text("-", 130, yPos);
+                doc.text(`₹${taxAmount.toLocaleString()}`, 165, yPos);
+
+                yPos += 8;
+                doc.text("Service Charge", 22, yPos);
+                doc.text("-", 100, yPos);
+                doc.text("-", 130, yPos);
+                doc.text("Complimentary", 165, yPos);
+
+                yPos += 3;
+                doc.setDrawColor(212, 175, 55);
+                doc.setLineWidth(2);
+                doc.line(20, yPos, 190, yPos);
+
+                yPos += 10;
+
+                // Total amount in highlighted box
+                const totalWithTax = b.total + taxAmount;
+                doc.setFillColor(212, 175, 55);
+                doc.roundedRect(20, yPos - 5, 170, 14, 2, 2, 'F');
+                doc.setFontSize(16);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(0, 0, 0);
+                doc.text("TOTAL AMOUNT PAID:", 25, yPos + 4);
+                doc.setFontSize(18);
+                doc.text(`₹${totalWithTax.toLocaleString()}`, 165, yPos + 4, { align: 'right' });
+
+                yPos += 10;
+                doc.setFontSize(9);
+                doc.setTextColor(0, 150, 0);
+                doc.setFont(undefined, 'bold');
+                doc.text("✓ PAYMENT STATUS: CONFIRMED", 22, yPos);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont(undefined, 'normal');
+                const paymentInfo = b.paymentId ? `Payment Method: Razorpay | Payment ID: ${b.paymentId}` : `Payment Method: Online | Transaction ID: TXN${b.id}`;
+                doc.text(paymentInfo, 22, yPos + 6);
+
+                // Amenities & Services Section
+                yPos += 18;
+                doc.setFillColor(212, 175, 55);
+                doc.rect(15, yPos, 180, 10, 'F');
+                doc.setFontSize(13);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(0, 0, 0);
+                doc.text("🌟 COMPLIMENTARY AMENITIES & SERVICES", 17, yPos + 7);
+
+                yPos += 13;
+                doc.setFontSize(8);
+                doc.setFont(undefined, 'normal');
+                const amenities = [
+                    "✓ High-Speed WiFi (100 Mbps)",
+                    "✓ Welcome Drinks on Arrival",
+                    "✓ Daily Breakfast Buffet",
+                    "✓ Airport Pickup & Drop",
+                    "✓ 24/7 Room Service",
+                    "✓ Spa & Wellness Access",
+                    "✓ Swimming Pool & Gym",
+                    "✓ Valet Parking",
+                    "✓ Concierge Services",
+                    "✓ Laundry Service (2 pieces/day)"
+                ];
+
+                let col = 0;
+                amenities.forEach((amenity, index) => {
+                    const xPos = col === 0 ? 20 : 110;
+                    doc.text(amenity, xPos, yPos);
+                    if(col === 1) {
+                        yPos += 5;
+                        col = 0;
+                    } else {
+                        col++;
+                    }
+                });
+
+                if(col === 1) yPos += 5;
+
+                // Terms & Conditions
+                yPos += 8;
+                doc.setFillColor(250, 250, 250);
+                doc.roundedRect(15, yPos, 180, 8, 2, 2, 'F');
+                doc.setFillColor(212, 175, 55);
+                doc.rect(15, yPos, 4, 8, 'F');
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(0, 0, 0);
+                doc.text("📋 TERMS & CONDITIONS", 22, yPos + 6);
+
+                yPos += 12;
+                doc.setFontSize(7);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(60, 60, 60);
+                const terms = [
+                    "• Check-in time is 2:00 PM and check-out time is 12:00 PM. Early check-in/late check-out subject to availability.",
+                    "• Valid government-issued photo ID and address proof required at check-in for all guests.",
+                    "• Cancellation charges: 100% refund if cancelled 48 hours before check-in, 50% if within 48 hours, no refund on same day.",
+                    "• Smoking is strictly prohibited in rooms. Smoking area available on premises. Violation fine: ₹5,000.",
+                    "• Guests are responsible for any damage to hotel property during their stay.",
+                    "• Outside food and beverages are not permitted in the hotel premises.",
+                    "• Hotel reserves the right to refuse service or ask guests to leave for misconduct or violation of hotel policies.",
+                    "• Valuables should be deposited in the safe deposit lockers. Hotel is not responsible for loss of valuables.",
+                    "• This is a computer-generated receipt and does not require a signature."
+                ];
+
+                terms.forEach(term => {
+                    const lines = doc.splitTextToSize(term, 170);
+                    lines.forEach(line => {
+                        doc.text(line, 20, yPos);
+                        yPos += 4;
+                    });
+                });
+
+                // QR Code Placeholder & Important Info Box with Modern Design
+                doc.setFillColor(250, 250, 250);
+                doc.roundedRect(15, 265, 35, 35, 3, 3, 'F');
+                doc.setDrawColor(212, 175, 55);
+                doc.setLineWidth(3);
+                doc.roundedRect(15, 265, 35, 35, 3, 3, 'S');
+                doc.setFontSize(8);
+                doc.setTextColor(212, 175, 55);
+                doc.setFont(undefined, 'bold');
+                doc.text("QR CODE", 32.5, 280, { align: 'center' });
+                doc.text("SCAN ME", 32.5, 286, { align: 'center' });
+                doc.setFontSize(20);
+                doc.text("📱", 32.5, 275, { align: 'center' });
+
+                doc.setFillColor(212, 175, 55);
+                doc.roundedRect(55, 265, 140, 35, 3, 3, 'F');
+                doc.setFillColor(255, 215, 0);
+                doc.circle(57, 267, 2, 'F');
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(0, 0, 0);
+                doc.text("ℹ️ IMPORTANT INFORMATION", 62, 272);
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(7);
+                doc.text("• Carry this receipt for smooth check-in process", 60, 279);
+                doc.text("• Emergency Contact: +91 22 1234 5678 (24/7 Available)", 60, 284);
+                doc.text("• For any queries, email: support@grandhorizon.com", 60, 289);
+                doc.text("• GPS Coordinates: 19.0760° N, 72.8777° E", 60, 294);
+
+                // Footer with Social Media & Thank You
+                doc.setFillColor(5, 5, 5);
+                doc.rect(0, 297, 210, 3, 'F');
+
+                doc.setFontSize(10);
+                doc.setTextColor(212, 175, 55);
+                doc.setFont(undefined, 'bold');
+                doc.text("Thank you for choosing Grand Horizon! We look forward to hosting you.", 105, 304, { align: 'center' });
+
+                doc.setFontSize(7);
+                doc.setTextColor(100, 100, 100);
+                doc.setFont(undefined, 'normal');
+                doc.text("Follow us: @GrandHorizonHotel | Facebook | Instagram | Twitter | LinkedIn", 105, 310, { align: 'center' });
+                doc.text("Grand Horizon Sovereign Estate | CIN: U55101MH2020PTC123456 | ISO 9001:2015 Certified", 105, 315, { align: 'center' });
+                doc.text("This is a system-generated document. For queries, contact reservations@grandhorizon.com", 105, 320, { align: 'center' });
+
+                // Save PDF
+                doc.save(`GrandHorizon_Receipt_${b.id}.pdf`);
+                console.log(`✅ Detailed receipt generated for booking ${b.id}`);
+            }
+        };
+
+        // 6. UI ORCHESTRATION
+        const ui = {
+            render() {
+                document.getElementById('room-count').innerText = 20 - DB.bookings.length;
+            }
+        };
+
+        // 7. MOBILE MENU TOGGLE
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('mobile-overlay');
+            const hamburger = document.getElementById('hamburger');
+
+            menu.classList.toggle('active');
+            overlay.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        }
+
+        // 8. 3D TILT EFFECT ON CARDS (Desktop Only)
+        function init3DTilt() {
+            if (window.innerWidth < 768) return; // Skip on mobile
+
+            const cards = document.querySelectorAll('.card-3d');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+
+                    const rotateX = (y - centerY) / 10;
+                    const rotateY = (centerX - x) / 10;
+
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+                });
+            });
+        }
+
+        // 9. PARALLAX SCROLL EFFECT
+        function initParallax() {
+            const parallaxElements = document.querySelectorAll('.parallax-layer');
+
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+
+                parallaxElements.forEach(el => {
+                    const speed = el.dataset.speed || 0.5;
+                    el.style.transform = `translateY(${scrolled * speed}px)`;
+                });
+            });
+        }
+
+        // 10. UPDATE MOBILE ROOM COUNT
+        function updateRoomCounts() {
+            const count = 20 - DB.bookings.length;
+            document.getElementById('room-count').innerText = count;
+            const mobileCount = document.getElementById('room-count-mobile');
+            if (mobileCount) {
+                mobileCount.innerText = count;
+            }
+        }
+
+        window.addEventListener('load', () => {
+            gsap.to("#preloader", { opacity: 0, duration: 1, delay: 1, onComplete: () => document.getElementById('preloader').style.display='none' });
+            ui.render();
+            updateRoomCounts();
+
+            // Custom cursor for desktop only
+            if (window.innerWidth >= 768) {
+                document.addEventListener('mousemove', e => {
+                    gsap.to("#cursor-main", { x: e.clientX, y: e.clientY, duration: 0.1 });
+                    gsap.to("#cursor-aura", { x: e.clientX - 15, y: e.clientY - 15, duration: 0.3 });
+                });
+            }
+
+            gsap.registerPlugin(ScrollTrigger);
+            document.querySelectorAll('.reveal').forEach(el => {
+                ScrollTrigger.create({ trigger: el, start: "top 95%", onEnter: () => el.classList.add('active') });
+            });
+
+            // Initialize 3D effects
+            init3DTilt();
+            initParallax();
+        });
+
+        // Override ui.render to update both counts
+        const originalRender = ui.render;
+        ui.render = function() {
+            originalRender.call(this);
+            updateRoomCounts();
+        };
+    </script>
+<script defer="" src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;b1226d90e3184d41aa395a6b2c8a5cf1&quot;,&quot;r&quot;:1,&quot;server_timing&quot;:{&quot;name&quot;:{&quot;cfCacheStatus&quot;:true,&quot;cfEdge&quot;:true,&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfOrigin&quot;:true,&quot;cfSpeedBrain&quot;:true},&quot;location_startswith&quot;:null}}" crossorigin="anonymous"></script>
+
+
+<div class="razorpay-container" style="z-index: 2147483647; position: fixed; top: 0px; display: none; left: 0px; height: 100%; width: 100%; max-height: 100dvh; backface-visibility: hidden; overflow-y: visible;"><style>@keyframes rzp-rot{to{transform: rotate(360deg);}}@-webkit-keyframes rzp-rot{to{-webkit-transform: rotate(360deg);}} .razorpay-container > iframe {min-height: 100%!important;}</style><div class="razorpay-backdrop" style="min-height: 100%; transition: 0.3s ease-out; position: fixed; top: 0px; left: 0px; width: 100%; height: 100%;"><span style="text-decoration: none; background: rgb(214, 68, 68); border: 1px dashed white; padding: 3px; opacity: 0; transform: rotate(45deg); transition: opacity 0.3s ease-in; font-family: lato, ubuntu, helvetica, sans-serif; color: white; position: absolute; width: 200px; text-align: center; right: -50px; top: 50px;">Test Mode</span></div><iframe allowtransparency="true" frameborder="0" width="100%" height="100%" src="https://api.razorpay.com/v1/checkout/public?traffic_env=production&amp;build=9b3dff7b15e425d2db4ebd1339d5e30ba6c73726&amp;build_v1=ad4a7bf67b89ee0057f24e794a8a4696fe205bab&amp;checkout_v2=1&amp;new_session=1&amp;rzp_device_id=1.2775383d27a03b5b35b6853e64dd0d201eba1bce.1768937810497.88942991&amp;unified_session_id=S6eSai3gdyRelI" class="razorpay-checkout-frame" allow="otp-credentials; payment; clipboard-write; publickey-credentials-get https://api.razorpay.com; publickey-credentials-create 'self' https://api.razorpay.com; web-share; camera *" style="opacity: 1; height: 100%; position: relative; background: none; display: block; border: 0px none transparent; margin: 0px; padding: 0px; z-index: 2;"></iframe></div><span id="PING_IFRAME_FORM_DETECTION" style="display: none;"></span></body></html>
